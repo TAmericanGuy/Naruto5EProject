@@ -208,13 +208,17 @@ export default function App() {
           <label htmlFor="charname">Character Name</label>
           <input id="charname" name="charname" />
         </section>
-        <section className="misc">
-          <ul>
-            <li>
+        <section className="identity-card">
+          <div className="identity-grid">
+            <div className="field class-field">
               <label htmlFor="class">Class</label>
               <input id="class" name="class" placeholder="Genin" />
-            </li>
-            <li>
+            </div>
+            <div className="field clan-field">
+              <label htmlFor="clan">Clan</label>
+              <input id="clan" name="clan" placeholder="Uchiha" />
+            </div>
+            <div className="field level-field">
               <label htmlFor="level">Level</label>
               <input
                 id="level"
@@ -226,36 +230,28 @@ export default function App() {
                 onChange={(event) => setLevelInput(event.target.value)}
                 onBlur={() => setLevelInput(String(level))}
               />
-            </li>
-            <li>
+            </div>
+            <div className="field background-field">
               <label htmlFor="background">Background</label>
               <input id="background" name="background" placeholder="Acolyte" />
-            </li>
-            <li>
-              <label htmlFor="playername">Player Name</label>
-              <input id="playername" name="playername" placeholder="Player McPlayerface" />
-            </li>
-            <li>
-              <label htmlFor="clan">Clan</label>
-              <input id="clan" name="clan" placeholder="Uchiha" />
-            </li>
-            <li>
+            </div>
+            <div className="field village-field">
               <label htmlFor="village">Village</label>
               <input id="village" name="village" placeholder="Konoha" />
-            </li>
-            <li>
+            </div>
+            <div className="field experience-field">
               <label htmlFor="experiencepoints">Experience Points</label>
               <input id="experiencepoints" name="experiencepoints" placeholder="3240" />
-            </li>
-            <li>
+            </div>
+            <div className="field ninja-field">
               <label htmlFor="ninjaRank">Ninja Rank</label>
               <input id="ninjaRank" name="ninjaRank" placeholder="Chuunin" />
-            </li>
-            <li>
+            </div>
+            <div className="field alignment-field">
               <label htmlFor="alignment">Alignment</label>
               <input id="alignment" name="alignment" placeholder="Neutral Good" />
-            </li>
-            <li className="nature-affinity">
+            </div>
+            <div className="field nature-affinity">
               <span className="nature-title">Nature Affinity</span>
               <div className="nature-options">
                 {natureOptions.map((option) => {
@@ -273,8 +269,12 @@ export default function App() {
                   );
                 })}
               </div>
-            </li>
-          </ul>
+            </div>
+          </div>
+        </section>
+        <section className="player-card">
+          <label htmlFor="playername">Player Name</label>
+          <input id="playername" name="playername" placeholder="Player McPlayerface" />
         </section>
       </header>
       <main>

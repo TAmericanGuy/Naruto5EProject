@@ -50,14 +50,28 @@ form.charsheet textarea {
 
 form.charsheet header {
   display: grid;
-  grid-template-columns: minmax(260px, 320px) 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--gap-lg);
   align-items: stretch;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1080px) {
+  form.charsheet header {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  form.charsheet header section.charname {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 720px) {
   form.charsheet header {
     grid-template-columns: 1fr;
+  }
+
+  form.charsheet header section.charname {
+    grid-column: auto;
   }
 }
 
@@ -67,7 +81,7 @@ form.charsheet header section.charname {
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  padding: 280px 24px 32px;
+  padding: 200px 24px 28px;
   border-radius: var(--radius-lg);
   background:
     linear-gradient(180deg, rgba(18, 19, 23, 0.28) 0%, rgba(18, 19, 23, 0) 38%),
@@ -81,13 +95,13 @@ form.charsheet header section.charname {
 form.charsheet header section.charname::before {
   content: "N5E";
   position: absolute;
-  top: 52px;
+  top: 38px;
   left: 50%;
   transform: translateX(-50%);
   font-family: "Cinzel", "Trajan Pro", serif;
   font-weight: 600;
-  letter-spacing: 0.3em;
-  font-size: 2.9rem;
+  letter-spacing: 0.28em;
+  font-size: 2.6rem;
   color: #f3f1f5;
   text-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
   z-index: 2;
@@ -96,14 +110,14 @@ form.charsheet header section.charname::before {
 form.charsheet header section.charname::after {
   content: "";
   position: absolute;
-  top: 126px;
+  top: 112px;
   left: 50%;
   transform: translateX(-50%);
-  width: min(72%, 260px);
-  aspect-ratio: 1;
+  width: min(70%, 220px);
+  aspect-ratio: 3 / 4;
   border-radius: var(--radius-md);
   border: 2px dashed rgba(45, 36, 29, 0.35);
-  background: rgba(250, 246, 236, 0.95) url("https://i.imgur.com/G8kk6zf.png") center/45% no-repeat;
+  background: rgba(250, 246, 236, 0.95) url("https://i.imgur.com/G8kk6zf.png") center/48% no-repeat;
   box-shadow: inset 0 6px 12px rgba(0, 0, 0, 0.08);
   z-index: 1;
 }
@@ -144,108 +158,274 @@ form.charsheet header section.charname label {
   box-shadow: 0 6px 0 -4px rgba(45, 36, 29, 0.35), 0 10px 18px -12px var(--shadow);
 }
 
-form.charsheet header section.misc {
+form.charsheet header section.identity-card {
   position: relative;
-  padding: 220px 32px 32px;
+  padding: 32px 28px 36px;
   border-radius: var(--radius-lg);
   background: linear-gradient(180deg, var(--paper) 0%, #fffdf8 100%);
   border: 2px solid var(--border);
   box-shadow: 0 16px 28px -18px var(--shadow), inset 0 8px 12px -8px rgba(255, 255, 255, 0.75);
+  display: flex;
+  flex-direction: column;
 }
 
-form.charsheet header section.misc::before {
+form.charsheet header section.identity-card::after {
   content: "Identity";
   position: absolute;
-  top: -14px;
-  left: 32px;
-  padding: 6px 18px;
-  background: var(--banner-dark);
-  color: #f4f1ff;
-  font-family: "Cinzel", serif;
-  font-size: 0.95rem;
-  letter-spacing: 0.18em;
+  left: 50%;
+  bottom: -18px;
+  transform: translateX(-50%);
+  padding: 6px 24px 8px;
+  background: #ffffff;
+  border: 2px solid var(--border);
+  border-radius: 0 0 999px 999px;
+  letter-spacing: 0.22em;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--soft-ink);
   text-transform: uppercase;
-  border-radius: 999px;
-  box-shadow: 0 8px 16px -12px var(--shadow);
+  box-shadow: 0 6px 0 -4px rgba(45, 36, 29, 0.3), 0 10px 18px -12px var(--shadow);
 }
 
-form.charsheet header section.misc ul {
-  position: relative;
+form.charsheet header section.identity-card .identity-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.9fr);
+  grid-template-columns: minmax(0, 1.2fr) minmax(160px, 0.8fr);
   gap: var(--gap-md) var(--gap-lg);
-  margin: 0;
-  padding: 0;
-  list-style: none;
 }
 
-form.charsheet header section.misc li {
+form.charsheet header section.identity-card .field {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-form.charsheet header section.misc li:nth-child(1) {
-  grid-column: 1;
+form.charsheet header section.identity-card .field label,
+form.charsheet header section.identity-card .field span.nature-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--soft-ink);
+  text-transform: uppercase;
 }
 
-form.charsheet header section.misc li:nth-child(5) {
+form.charsheet header section.identity-card .field input {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(45, 36, 29, 0.28);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.08);
+}
+
+form.charsheet header section.identity-card .field input:focus {
+  outline: 3px solid rgba(206, 182, 138, 0.35);
+}
+
+form.charsheet header section.identity-card .field input::placeholder {
+  color: rgba(63, 52, 43, 0.4);
+  letter-spacing: 0.04em;
+}
+
+form.charsheet header section.identity-card .class-field {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+form.charsheet header section.identity-card .clan-field {
   grid-column: 1;
   grid-row: 2;
 }
 
-form.charsheet header section.misc li:nth-child(2) {
+form.charsheet header section.identity-card .level-field {
   grid-column: 2;
   grid-row: 1 / span 2;
   align-self: stretch;
-  display: grid;
-  grid-template-rows: auto 1fr;
-  align-items: stretch;
 }
 
-form.charsheet header section.misc li:nth-child(n + 3):not(:nth-child(4)):not(:nth-child(5)) {
+form.charsheet header section.identity-card .background-field,
+form.charsheet header section.identity-card .village-field,
+form.charsheet header section.identity-card .experience-field,
+form.charsheet header section.identity-card .ninja-field,
+form.charsheet header section.identity-card .alignment-field,
+form.charsheet header section.identity-card .nature-affinity {
   grid-column: 1 / -1;
 }
 
-form.charsheet header section.misc li:nth-child(4) {
-  position: absolute;
-  top: 40px;
-  left: 32px;
-  right: 32px;
-  min-height: 170px;
-  padding: 132px 24px 32px;
+form.charsheet header section.identity-card .level-field label {
+  text-align: center;
+}
+
+form.charsheet header section.identity-card .level-field input {
+  font-family: "Cinzel", serif;
+  font-size: 2.2rem;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.12em;
+  padding: 16px 12px;
+  border-radius: 20px;
   border: 2px solid var(--border);
+  background: linear-gradient(180deg, #fffdf6 0%, #f5e7cf 100%);
+  box-shadow: inset 0 6px 10px rgba(0, 0, 0, 0.08), 0 6px 14px -10px var(--shadow);
+  height: 100%;
+}
+
+form.charsheet header section.identity-card .level-field input::-webkit-outer-spin-button,
+form.charsheet header section.identity-card .level-field input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+form.charsheet header section.identity-card .level-field input[type="number"] {
+  appearance: textfield;
+}
+
+form.charsheet header section.identity-card .nature-affinity {
+  padding: 14px 16px 18px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px dashed rgba(45, 36, 29, 0.3);
+  gap: var(--gap-sm);
+}
+
+form.charsheet header section.identity-card .nature-affinity .nature-title {
+  display: block;
+  text-align: center;
+}
+
+form.charsheet header section.identity-card .nature-affinity .nature-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px 12px;
+}
+
+form.charsheet header section.identity-card .nature-affinity .nature-options label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(45, 36, 29, 0.26);
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  overflow: hidden;
+}
+
+form.charsheet header section.identity-card .nature-affinity .nature-options label input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+form.charsheet header section.identity-card .nature-affinity .nature-options label span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 8px 16px;
+  border-radius: inherit;
+  background: rgba(206, 182, 138, 0.2);
+  border: 1px solid rgba(156, 129, 89, 0.35);
+  color: var(--soft-ink);
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+}
+
+
+@media (max-width: 1080px) {
+  form.charsheet header section.identity-card::after {
+    bottom: -16px;
+  }
+}
+
+@media (max-width: 900px) {
+  form.charsheet header section.identity-card .identity-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  form.charsheet header section.identity-card .level-field {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+}
+
+@media (max-width: 720px) {
+  form.charsheet header section.identity-card {
+    padding-bottom: 48px;
+  }
+
+  form.charsheet header section.identity-card::after {
+    bottom: -20px;
+  }
+
+  form.charsheet header section.identity-card .identity-grid {
+    grid-template-columns: 1fr;
+  }
+
+  form.charsheet header section.identity-card .level-field {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  form.charsheet header section.identity-card .level-field label {
+    text-align: left;
+  }
+
+  form.charsheet header section.identity-card .nature-affinity .nature-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  form.charsheet header section.identity-card .nature-affinity .nature-options {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 400px) {
+  form.charsheet header section.identity-card .nature-affinity .nature-options {
+    grid-template-columns: 1fr;
+  }
+}
+
+form.charsheet header section.player-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 170px 24px 28px;
   border-radius: var(--radius-lg);
   background:
     linear-gradient(180deg, rgba(18, 19, 23, 0.24) 0%, rgba(18, 19, 23, 0) 40%),
     linear-gradient(180deg, var(--paper-tint) 0%, #fff9ef 100%);
+  border: 2px solid var(--border);
   box-shadow: 0 16px 26px -18px var(--shadow), 0 8px 16px -8px var(--shadow-soft) inset;
   text-transform: uppercase;
-  align-items: center;
-  justify-content: flex-end;
   overflow: hidden;
-  z-index: 2;
 }
 
-form.charsheet header section.misc li:nth-child(4)::before {
+form.charsheet header section.player-card::before {
   content: "";
   position: absolute;
   top: 32px;
   left: 50%;
   transform: translateX(-50%);
-  width: min(80%, 280px);
+  width: min(82%, 240px);
   height: 90px;
   background: url("https://i.imgur.com/76ilaam.png") center/contain no-repeat;
   opacity: 0.9;
 }
 
-form.charsheet header section.misc li:nth-child(4) label {
+form.charsheet header section.player-card label {
   order: 2;
-  margin-top: 18px;
+  margin-top: 16px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 36px 10px;
+  padding: 8px 32px 10px;
   border: 2px solid var(--border);
   border-top: none;
   background: #ffffff;
@@ -256,7 +436,7 @@ form.charsheet header section.misc li:nth-child(4) label {
   box-shadow: 0 6px 0 -4px rgba(45, 36, 29, 0.35), 0 10px 18px -12px var(--shadow);
 }
 
-form.charsheet header section.misc li:nth-child(4) input#playername {
+form.charsheet header section.player-card input {
   order: 1;
   width: 100%;
   padding: 14px 18px;
@@ -271,191 +451,18 @@ form.charsheet header section.misc li:nth-child(4) input#playername {
   box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.08);
 }
 
-form.charsheet header section.misc li:nth-child(4) input#playername:focus {
+form.charsheet header section.player-card input:focus {
   outline: 3px solid rgba(206, 182, 138, 0.45);
 }
 
-form.charsheet header section.misc li:nth-child(2) label {
-  text-align: center;
-  margin-bottom: 8px;
-}
-
-form.charsheet header section.misc li:nth-child(2) input#level {
-  width: 100%;
-  height: 100%;
-}
-
-form.charsheet header section.misc li:nth-child(1),
-form.charsheet header section.misc li:nth-child(5) {
-  align-self: start;
-}
-
-form.charsheet header section.misc li label {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  color: var(--soft-ink);
-}
-
-form.charsheet header section.misc li input {
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(45, 36, 29, 0.28);
-  background: rgba(255, 255, 255, 0.85);
-  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.08);
-}
-
-form.charsheet header section.misc li input:focus {
-  outline: 3px solid rgba(206, 182, 138, 0.35);
-}
-
-form.charsheet header section.misc li input::placeholder {
-  color: rgba(63, 52, 43, 0.4);
-  letter-spacing: 0.04em;
-}
-
-form.charsheet header section.misc li input#level {
-  font-family: "Cinzel", serif;
-  font-size: 2.4rem;
-  font-weight: 600;
-  text-align: center;
-  letter-spacing: 0.14em;
-  padding: 18px 12px;
-  border-radius: 20px;
-  border: 2px solid var(--border);
-  background: linear-gradient(180deg, #fffdf6 0%, #f5e7cf 100%);
-  box-shadow: inset 0 6px 10px rgba(0, 0, 0, 0.08), 0 6px 14px -10px var(--shadow);
-}
-
-@media (max-width: 900px) {
-  form.charsheet header section.misc {
-    padding-top: 240px;
-  }
-
-  form.charsheet header section.misc li:nth-child(4) {
-    top: 32px;
-    min-height: 160px;
-  }
-}
-
 @media (max-width: 720px) {
-  form.charsheet header section.misc {
-    padding-top: 210px;
-  }
-
-  form.charsheet header section.misc ul {
-    grid-template-columns: 1fr;
-  }
-
-  form.charsheet header section.misc li:nth-child(1),
-  form.charsheet header section.misc li:nth-child(2),
-  form.charsheet header section.misc li:nth-child(5) {
-    grid-column: 1;
-    grid-row: auto;
-  }
-
-  form.charsheet header section.misc li:nth-child(2) {
-    height: auto;
+  form.charsheet header section.player-card {
+    padding: 150px 24px 28px;
   }
 }
 
-@media (max-width: 640px) {
-  form.charsheet header section.misc {
-    padding-top: 200px;
+@media (max-width: 560px) {
+  form.charsheet header section.player-card {
+    padding: 140px 20px 28px;
   }
-
-  form.charsheet header section.misc li:nth-child(4) {
-    position: relative;
-    top: 0;
-    left: 0;
-    right: 0;
-    margin-bottom: var(--gap-lg);
-  }
-
-  form.charsheet header section.misc ul {
-    margin-top: 0;
-  }
-
-  form.charsheet header section.misc li:nth-child(n + 3):not(:nth-child(4)):not(:nth-child(5)) {
-    grid-column: 1;
-  }
-}
-
-form.charsheet header section.misc li input#level::-webkit-outer-spin-button,
-form.charsheet header section.misc li input#level::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-form.charsheet header section.misc li input#level[type="number"] {
-  appearance: textfield;
-}
-
-form.charsheet header section.misc li.nature-affinity {
-  grid-column: 1 / -1;
-  padding: 14px 16px 18px;
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.82);
-  border: 1px dashed rgba(45, 36, 29, 0.3);
-  gap: var(--gap-sm);
-}
-
-form.charsheet header section.misc li.nature-affinity .nature-title {
-  display: block;
-  text-align: center;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  color: var(--soft-ink);
-}
-
-form.charsheet header section.misc li.nature-affinity .nature-options {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  gap: var(--gap-sm);
-}
-
-form.charsheet header section.misc li.nature-affinity .nature-options label {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 12px;
-  border-radius: 999px;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.68rem;
-  font-weight: 600;
-}
-
-form.charsheet header section.misc li.nature-affinity .nature-options label input {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-
-form.charsheet header section.misc li.nature-affinity .nature-options label span {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 8px 16px;
-  border-radius: inherit;
-  background: rgba(206, 182, 138, 0.2);
-  border: 1px solid rgba(156, 129, 89, 0.35);
-  color: var(--soft-ink);
-  transition: all 0.2s ease;
-}
-
-form.charsheet header section.misc li.nature-affinity .nature-options label:hover span {
-  background: rgba(206, 182, 138, 0.32);
-}
-
-form.charsheet header section.misc li.nature-affinity .nature-options label input:checked + span {
-  background: var(--accent-dark);
-  color: #fffaf1;
-  border-color: var(--border);
-  box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.22);
 }
