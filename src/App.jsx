@@ -1,693 +1,598 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import "./styles.css";
 
+const abilityList = [
+  { name: "Strength", key: "str", scoreId: "Strengthscore" },
+  { name: "Dexterity", key: "dex", scoreId: "Dexterityscore" },
+  { name: "Constitution", key: "con", scoreId: "Constitutionscore" },
+  { name: "Wisdom", key: "wis", scoreId: "Wisdomscore" },
+  { name: "Intelligence", key: "int", scoreId: "Intelligencescore" },
+  { name: "Charisma", key: "cha", scoreId: "Charismascore" },
+];
+
+const skillList = [
+  { name: "Acrobatics", key: "acrobatics", ability: "dex", abilityLabel: "Dex" },
+  { name: "Animal Handling", key: "animal-handling", ability: "wis", abilityLabel: "Wis" },
+  { name: "Arcana", key: "arcana", ability: "int", abilityLabel: "Int" },
+  { name: "Athletics", key: "athletics", ability: "str", abilityLabel: "Str" },
+  { name: "Chakra Control", key: "chakra-control", ability: "wis", abilityLabel: "Wis" },
+  { name: "Deception", key: "deception", ability: "cha", abilityLabel: "Cha" },
+  { name: "History", key: "history", ability: "int", abilityLabel: "Int" },
+  { name: "Insight", key: "insight", ability: "wis", abilityLabel: "Wis" },
+  { name: "Intimidation", key: "intimidation", ability: "cha", abilityLabel: "Cha" },
+  { name: "Investigation", key: "investigation", ability: "int", abilityLabel: "Int" },
+  { name: "Medicine", key: "medicine", ability: "wis", abilityLabel: "Wis" },
+  { name: "Nature", key: "nature", ability: "int", abilityLabel: "Int" },
+  { name: "Perception", key: "perception", ability: "wis", abilityLabel: "Wis" },
+  { name: "Performance", key: "performance", ability: "cha", abilityLabel: "Cha" },
+  { name: "Persuasion", key: "persuasion", ability: "cha", abilityLabel: "Cha" },
+  { name: "Religion", key: "religion", ability: "int", abilityLabel: "Int" },
+  { name: "Sleight of Hand", key: "sleight-of-hand", ability: "dex", abilityLabel: "Dex" },
+  { name: "Stealth", key: "stealth", ability: "dex", abilityLabel: "Dex" },
+  { name: "Survival", key: "survival", ability: "wis", abilityLabel: "Wis" },
+];
+
+const savingThrows = abilityList.map((ability) => ({
+  key: ability.key,
+  label: ability.name,
+  id: `${slugify(ability.name)}-save`,
+}));
+
+const moneyTypes = ["cp", "sp", "ep", "gp", "pp"];
+const natureOptions = ["Fire", "Wind", "Lightning", "Earth", "Water", "Medical"];
+
+function slugify(value) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+}
+
+function fmt(value) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) {
+    return "+0";
+  }
+  return numeric >= 0 ? `+${numeric}` : `${numeric}`;
+}
+
+function pbFromLevel(rawLevel) {
+  const level = Math.max(1, Math.min(20, rawLevel));
+  if (level >= 19) return 9;
+  if (level >= 16) return 8;
+  if (level >= 13) return 7;
+  if (level >= 10) return 6;
+  if (level >= 7) return 5;
+  if (level >= 4) return 4;
+  return 3;
+}
+
+function computeModifier(score) {
+  const parsed = parseInt(score, 10);
+  if (Number.isNaN(parsed)) {
+    return 0;
+  }
+  return Math.floor((parsed - 10) / 2);
+}
+
+function clampLevel(value) {
+  const parsed = parseInt(value, 10);
+  if (Number.isNaN(parsed)) {
+    return 1;
+  }
+  return Math.max(1, Math.min(20, parsed));
+}
+
+function getGaugeFill(current, max) {
+  const currentValue = Number(current);
+  const maxValue = Number(max);
+  if (!Number.isFinite(currentValue) || !Number.isFinite(maxValue) || maxValue <= 0) {
+    return 0;
+  }
+  const ratio = currentValue / maxValue;
+  return Math.max(0, Math.min(1, ratio));
+}
+
 export default function App() {
-  const [level, setLevel] = useState(1);
+  const [levelInput, setLevelInput] = useState("1");
+  const level = clampLevel(levelInput);
+  const proficiencyBonus = pbFromLevel(level);
 
-  const natures = ["Fire", "Water", "Wind", "Earth", "Lightning"];
+  const [abilitiesState, setAbilitiesState] = useState(() =>
+    abilityList.reduce(
+      (acc, ability) => ({
+        ...acc,
+        [ability.key]: "10",
+      }),
+      {}
+    )
+  );
+
+  const abilityModifiers = useMemo(
+    () =>
+      abilityList.reduce(
+        (acc, ability) => ({
+          ...acc,
+          [ability.key]: computeModifier(abilitiesState[ability.key]),
+        }),
+        {}
+      ),
+    [abilitiesState]
+  );
+
+  const [savingThrowProficiencies, setSavingThrowProficiencies] = useState(() =>
+    abilityList.reduce(
+      (acc, ability) => ({
+        ...acc,
+        [ability.key]: false,
+      }),
+      {}
+    )
+  );
+
+  const [skillProficiencies, setSkillProficiencies] = useState(() =>
+    skillList.reduce(
+      (acc, skill) => ({
+        ...acc,
+        [skill.key]: false,
+      }),
+      {}
+    )
+  );
+
   const [natureAffinity, setNatureAffinity] = useState([]);
+  const [hitPoints, setHitPoints] = useState({ max: "", current: "", temp: "" });
+  const [chakraPoints, setChakraPoints] = useState({ max: "", current: "", temp: "" });
 
-  const [jutsuCount, setJutsuCount] = useState(1);
-  const addJutsu = () => setJutsuCount((n) => n + 1);
-  const jutsuCategories = ["Genjutsu", "Ninjutsu", "Taijutsu", "Bukijutsu"];
-
-  const toggleNature = (n) => {
-    setNatureAffinity((prev) =>
-      prev.includes(n) ? prev.filter((x) => x !== n) : [...prev, n]
-    );
-  };
-
-  // Ability scores + modifiers
-  const [abilities, setAbilities] = useState({
-    str: 10,
-    dex: 10,
-    con: 10,
-    int: 10,
-    wis: 10,
-    cha: 10,
-  });
-  const [modifiers, setModifiers] = useState({
-    str: 0,
-    dex: 0,
-    con: 0,
-    int: 0,
-    wis: 0,
-    cha: 0,
-  });
-
-  const handleAbilityChange = (ability, value) => {
-    const intValue = parseInt(value) || 0;
-    setAbilities((prev) => ({ ...prev, [ability]: intValue }));
-    setModifiers((prev) => ({
+  const handleAbilityChange = (key) => (event) => {
+    const { value } = event.target;
+    setAbilitiesState((prev) => ({
       ...prev,
-      [ability]: Math.floor((intValue - 10) / 2),
+      [key]: value,
     }));
   };
 
-  // Proficiency bonus (corrigido: compara usando o level clampado)
-  const pbFromLevel = (lvl) => {
-    const level = Math.max(1, Math.min(20, lvl));
-    if (level >= 19) return 9;
-    if (level >= 16) return 8;
-    if (level >= 13) return 7;
-    if (level >= 10) return 6;
-    if (level >= 7) return 5;
-    if (level >= 4) return 4;
-    return 3;
-  };
-  const proficiencyBonus = pbFromLevel(level);
-
-  const profLevels = {
-    none: 0,
-    half: 0.5,
-    proficient: 1,
-    expertise: 2,
+  const toggleSavingThrow = (key) => {
+    setSavingThrowProficiencies((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
   };
 
-  // Death saves
-  const [deathSaves, setDeathSaves] = useState({
-    success: [false, false, false],
-    failure: [false, false, false],
-  });
-  const toggleDeathSave = (type, idx) => {
-    setDeathSaves((prev) => {
-      const next = [...prev[type]];
-      next[idx] = !next[idx];
-      return { ...prev, [type]: next };
-    });
+  const toggleSkill = (key) => {
+    setSkillProficiencies((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
   };
 
-  // Features
-  const featureSets = [
-    { key: "class", label: "Class Features" },
-    { key: "clan", label: "Clan Features" },
-    { key: "subclass", label: "Subclass Features" },
-    { key: "feats", label: "Feats" },
-  ];
-  const [featureCount, setFeatureCount] = useState({
-    class: 1,
-    clan: 1,
-    subclass: 1,
-    feats: 1,
-  });
-  const addFeature = (key) => {
-    setFeatureCount((prev) => ({ ...prev, [key]: prev[key] + 1 }));
+  const toggleNature = (value) => {
+    setNatureAffinity((prev) =>
+      prev.includes(value) ? prev.filter((option) => option !== value) : [...prev, value]
+    );
   };
 
-  // Skills + Saving Throws (reusando estrutura)
-  const [skills, setSkills] = useState({
-    // Saves
-    saveStr: "none",
-    saveDex: "none",
-    saveCon: "none",
-    saveInt: "none",
-    saveWis: "none",
-    saveCha: "none",
-
-    // Skills
-    acrobatics: "none",
-    animal_handling: "none",
-    athletics: "none",
-    crafting: "none",
-    deception: "none",
-    history: "none",
-    illusion: "none",
-    insight: "none",
-    intimidation: "none",
-    investigation: "none",
-    martial_arts: "none",
-    medicine: "none",
-    nature: "none",
-    ninshou: "none",
-    perception: "none",
-    performance: "none",
-    persuasion: "none",
-    sleight_of_hand: "none",
-    stealth: "none",
-    survival: "none",
-  });
-
-  const handleSkillChange = (skill, level) => {
-    setSkills((prev) => ({ ...prev, [skill]: level }));
+  const getSavingThrowValue = (key) => {
+    const modifier = abilityModifiers[key] ?? 0;
+    return modifier + (savingThrowProficiencies[key] ? proficiencyBonus : 0);
   };
 
-  const fmt = (n) => (n >= 0 ? `+${n}` : `${n}`);
-  const getSkillBonus = (abilityKey, profLevel) => {
-    const base = modifiers[abilityKey] ?? 0;
-    const mult = profLevels[profLevel] ?? 0;
-    const profPart =
-      mult === 0.5
-        ? Math.floor(proficiencyBonus * 0.5)
-        : Math.floor(proficiencyBonus * mult);
-    return base + profPart;
+  const getSkillValue = (skill) => {
+    const modifier = abilityModifiers[skill.ability] ?? 0;
+    return modifier + (skillProficiencies[skill.key] ? proficiencyBonus : 0);
   };
+
+  const passivePerceptionSkill = skillList.find((skill) => skill.key === "perception");
+  const passivePerception = 10 + (passivePerceptionSkill ? getSkillValue(passivePerceptionSkill) : 0);
+
+  const handleHitPointChange = (field) => (event) => {
+    const { value } = event.target;
+    setHitPoints((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleChakraPointChange = (field) => (event) => {
+    const { value } = event.target;
+    setChakraPoints((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const hpFill = getGaugeFill(hitPoints.current, hitPoints.max);
+  const chakraFill = getGaugeFill(chakraPoints.current, chakraPoints.max);
 
   return (
-    <main className="sheet">
-      {/* HEADER */}
+    <form className="charsheet">
       <header>
-        <h1>Character Sheet</h1>
+        <section className="charname">
+          <label htmlFor="charname">Character Name</label>
+          <input id="charname" name="charname" />
+        </section>
+        <section className="misc">
+          <ul>
+            <li>
+              <label htmlFor="class">Class</label>
+              <input id="class" name="class" placeholder="Genin" />
+            </li>
+            <li>
+              <label htmlFor="level">Level</label>
+              <input
+                id="level"
+                name="level"
+                type="number"
+                min={1}
+                max={20}
+                value={levelInput}
+                onChange={(event) => setLevelInput(event.target.value)}
+                onBlur={() => setLevelInput(String(level))}
+              />
+            </li>
+            <li>
+              <label htmlFor="background">Background</label>
+              <input id="background" name="background" placeholder="Acolyte" />
+            </li>
+            <li>
+              <label htmlFor="playername">Player Name</label>
+              <input id="playername" name="playername" placeholder="Player McPlayerface" />
+            </li>
+            <li>
+              <label htmlFor="clan">Clan</label>
+              <input id="clan" name="clan" placeholder="Uchiha" />
+            </li>
+            <li>
+              <label htmlFor="village">Village</label>
+              <input id="village" name="village" placeholder="Konoha" />
+            </li>
+            <li>
+              <label htmlFor="experiencepoints">Experience Points</label>
+              <input id="experiencepoints" name="experiencepoints" placeholder="3240" />
+            </li>
+            <li>
+              <label htmlFor="ninjaRank">Ninja Rank</label>
+              <input id="ninjaRank" name="ninjaRank" placeholder="Chuunin" />
+            </li>
+            <li>
+              <label htmlFor="alignment">Alignment</label>
+              <input id="alignment" name="alignment" placeholder="Neutral Good" />
+            </li>
+            <li className="nature-affinity">
+              <span className="nature-title">Nature Affinity</span>
+              <div className="nature-options">
+                {natureOptions.map((option) => {
+                  const optionId = `nature-${slugify(option)}`;
+                  return (
+                    <label key={option} htmlFor={optionId}>
+                      <input
+                        id={optionId}
+                        type="checkbox"
+                        checked={natureAffinity.includes(option)}
+                        onChange={() => toggleNature(option)}
+                      />
+                      <span>{option}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </li>
+          </ul>
+        </section>
       </header>
-
-      {/* IDENTITY */}
-      <section className="section span-2 identity-card" aria-labelledby="identity-title">
-  <h2 id="identity-title" className="hide">Identity</h2>
-
-  <div className="identity-header">
-    {/* Nome à esquerda */}
-    <section className="charname">
-      <label htmlFor="charName">Character Name</label>
-      <input id="charName" name="charName" type="text" placeholder="Kaname Takeshima" />
-    </section>
-
-    {/* “Misc” à direita – 3 colunas */}
-    <section className="misc">
-      <ul>
-        <li>
-          <label htmlFor="className">Class & Level</label>
-          <input id="className" name="className" type="text" placeholder="Genin" />
-        </li>
-        <li>
-          <label htmlFor="playerName">Player Name</label>
-          <input id="playerName" name="playerName" type="text" placeholder="Your name" />
-        </li>
-        <li>
-          <label htmlFor="level">Level</label>
-          <input
-            id="level" name="level" type="number" min={1} max={20} value={level}
-            onChange={(e)=>{ const v=parseInt(e.target.value)||1; setLevel(Math.max(1,Math.min(20,v))); }}
-          />
-        </li>
-
-        <li>
-          <label htmlFor="clan">Clan</label>
-          <input id="clan" name="clan" type="text" placeholder="Uchiha" />
-        </li>
-        <li>
-          <label htmlFor="village">Village</label>
-          <input id="village" name="village" type="text" placeholder="Iwagakure" />
-        </li>
-        <li>
-          <label htmlFor="rank">Rank</label>
-          <input id="rank" name="rank" type="text" placeholder="Genin" />
-        </li>
-
-        <li>
-          <label htmlFor="profBonusAuto">Proficiency Bonus</label>
-          <input id="profBonusAuto" type="text" readOnly value={proficiencyBonus >= 0 ? `+${proficiencyBonus}` : `${proficiencyBonus}`} />
-        </li>
-        <li>
-          <label>Nature Affinity</label>
-          <div>
-            {natures.map((n)=>(
-              <label key={n} style={{marginRight:8}}>
-                <input type="checkbox" checked={natureAffinity.includes(n)} onChange={()=>toggleNature(n)} style={{marginRight:6}}/>
-                {n}
-              </label>
-            ))}
-          </div>
-        </li>
-      </ul>
-    </section>
-  </div>
-</section>
-              
-{/* COMBAT */}
-<section aria-labelledby="combat-title" className="section col-mid">
-  <h2 id="combat-title">Combat</h2>
-  <form className="combat-grid">
-    <div className="kpi ac">
-      <label htmlFor="ac">Armor Class</label>
-      <input id="ac" name="ac" type="text" placeholder="10" />
-    </div>
-
-    <div className="kpi init">
-      <label htmlFor="initiative">Initiative</label>
-      <input id="initiative" name="initiative" type="text" placeholder="+0" />
-    </div>
-
-    <div className="kpi spd">
-      <label htmlFor="speed">Speed</label>
-      <input id="speed" name="speed" type="text" placeholder="30 ft" />
-    </div>
-
-    <div className="hp-max">
-      <span>Hit Point Maximum</span>
-      <input id="hpMax" name="hpMax" type="text" placeholder="—" />
-    </div>
-
-    <div className="hp-max">
-      <span>Chakra Point Maximum</span>
-      <input id="chakraMax" name="chakraMax" type="text" placeholder="—" />
-    </div>
-
-    <div className="hp-current">
-      <label htmlFor="hpCurrent">Current Hit Points</label>
-      <input id="hpCurrent" name="hpCurrent" type="text" placeholder="—" />
-    </div>
-
-    <div className="hp-temp">
-      <label htmlFor="chakraCurrent">Temporary Hit Points</label>
-      <input id="chakraCurrent" name="chakraCurrent" type="text" placeholder="—" />
-    </div>
-
-    <div className="dice hit">
-      <span>Total</span>
-      <input id="hitDie" name="hitDie" type="text" placeholder="2d10" />
-      <label>Hit Dice</label>
-    </div>
-
-    <div className="dice chakra">
-      <span>Total</span>
-      <input id="chakraDie" name="chakraDie" type="text" placeholder="2d8" />
-      <label>Chakra Dice</label>
-    </div>
-  </form>
-</section>
-
-      {/* DEATH SAVES – seção própria com estilo de bolinhas */}
-      <section aria-labelledby="death-saves-title" className="section">
-        <h2 id="death-saves-title">Death Saves</h2>
-
-        <div className="ds-row">
-          {/* Successes */}
-          <div className="ds-group success">
-            <div className="ds-group-title">Successes</div>
-            <div className="ds-dots">
-              {deathSaves.success.map((v, i) => (
-                <input
-                  key={`ds-s-${i}`}
-                  type="checkbox"
-                  className="ds-dot"
-                  checked={v}
-                  onChange={() => toggleDeathSave("success", i)}
-                  aria-label={`Death Save Success ${i + 1}`}
-                />
-              ))}
+      <main>
+        <section>
+          <section className="attributes">
+            <div className="scores">
+              <ul>
+                {abilityList.map((ability) => {
+                  const modifierId = `${ability.scoreId}-mod`;
+                  return (
+                    <li key={ability.key}>
+                      <div className="score">
+                        <label htmlFor={ability.scoreId}>{ability.name}</label>
+                        <input
+                          id={ability.scoreId}
+                          name={ability.scoreId}
+                          type="number"
+                          value={abilitiesState[ability.key]}
+                          onChange={handleAbilityChange(ability.key)}
+                        />
+                      </div>
+                      <div className="modifier">
+                        <input id={modifierId} name={modifierId} value={fmt(abilityModifiers[ability.key])} readOnly />
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
-          </div>
-
-          {/* Failures */}
-          <div className="ds-group failure">
-            <div className="ds-group-title">Failures</div>
-            <div className="ds-dots">
-              {deathSaves.failure.map((v, i) => (
-                <input
-                  key={`ds-f-${i}`}
-                  type="checkbox"
-                  className="ds-dot"
-                  checked={v}
-                  onChange={() => toggleDeathSave("failure", i)}
-                  aria-label={`Death Save Failure ${i + 1}`}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ABILITY SCORES */}
-      <section aria-labelledby="abilities-title" className="section">
-        <h2 id="abilities-title">Ability Scores</h2>
-        <div>
-          <fieldset>
-            <legend>Strength (STR)</legend>
-            <label htmlFor="strScore">Score</label>
-            <input
-              id="strScore"
-              name="strScore"
-              type="number"
-              value={abilities.str}
-              onChange={(e) => handleAbilityChange("str", e.target.value)}
-            />
-            <label htmlFor="strMod">Modifier</label>
-            <input
-              id="strMod"
-              name="strMod"
-              type="text"
-              value={fmt(modifiers.str)}
-              readOnly
-              className="total"
-            />
-          </fieldset>
-
-          <fieldset>
-            <legend>Dexterity (DEX)</legend>
-            <label htmlFor="dexScore">Score</label>
-            <input
-              id="dexScore"
-              name="dexScore"
-              type="number"
-              value={abilities.dex}
-              onChange={(e) => handleAbilityChange("dex", e.target.value)}
-            />
-            <label htmlFor="dexMod">Modifier</label>
-            <input
-              id="dexMod"
-              name="dexMod"
-              type="text"
-              value={fmt(modifiers.dex)}
-              readOnly
-              className="total"
-            />
-          </fieldset>
-
-          <fieldset>
-            <legend>Constitution (CON)</legend>
-            <label htmlFor="conScore">Score</label>
-            <input
-              id="conScore"
-              name="conScore"
-              type="number"
-              value={abilities.con}
-              onChange={(e) => handleAbilityChange("con", e.target.value)}
-            />
-            <label htmlFor="conMod">Modifier</label>
-            <input
-              id="conMod"
-              name="conMod"
-              type="text"
-              value={fmt(modifiers.con)}
-              readOnly
-              className="total"
-            />
-          </fieldset>
-
-          <fieldset>
-            <legend>Intelligence (INT)</legend>
-            <label htmlFor="intScore">Score</label>
-            <input
-              id="intScore"
-              name="intScore"
-              type="number"
-              value={abilities.int}
-              onChange={(e) => handleAbilityChange("int", e.target.value)}
-            />
-            <label htmlFor="intMod">Modifier</label>
-            <input
-              id="intMod"
-              name="intMod"
-              type="text"
-              value={fmt(modifiers.int)}
-              readOnly
-              className="total"
-            />
-          </fieldset>
-
-          <fieldset>
-            <legend>Wisdom (WIS)</legend>
-            <label htmlFor="wisScore">Score</label>
-            <input
-              id="wisScore"
-              name="wisScore"
-              type="number"
-              value={abilities.wis}
-              onChange={(e) => handleAbilityChange("wis", e.target.value)}
-            />
-            <label htmlFor="wisMod">Modifier</label>
-            <input
-              id="wisMod"
-              name="wisMod"
-              type="text"
-              value={fmt(modifiers.wis)}
-              readOnly
-              className="total"
-            />
-          </fieldset>
-
-          <fieldset>
-            <legend>Charisma (CHA)</legend>
-            <label htmlFor="chaScore">Score</label>
-            <input
-              id="chaScore"
-              name="chaScore"
-              type="number"
-              value={abilities.cha}
-              onChange={(e) => handleAbilityChange("cha", e.target.value)}
-            />
-            <label htmlFor="chaMod">Modifier</label>
-            <input
-              id="chaMod"
-              name="chaMod"
-              type="text"
-              value={fmt(modifiers.cha)}
-              readOnly
-              className="total"
-            />
-          </fieldset>
-        </div>
-      </section>
-
-      {/* SAVING THROWS */}
-      <section aria-labelledby="savingThrows-title" className="section">
-        <h2 id="savingThrows-title">Saving Throws</h2>
-        <ul className="list-reset">
-          {[
-            ["Strength (STR)", "str", "saveStr"],
-            ["Dexterity (DEX)", "dex", "saveDex"],
-            ["Constitution (CON)", "con", "saveCon"],
-            ["Intelligence (INT)", "int", "saveInt"],
-            ["Wisdom (WIS)", "wis", "saveWis"],
-            ["Charisma (CHA)", "cha", "saveCha"],
-          ].map(([label, abilityKey, saveKey]) => (
-            <li key={saveKey} className="save-row">
-              <div className="row">
-                <label htmlFor={saveKey}>{label}</label>
-                <input
-                  id={saveKey}
-                  type="text"
-                  readOnly
-                  value={fmt(getSkillBonus(abilityKey, skills[saveKey]))}
-                  className="total"
-                />
+            <div className="attr-applications">
+              <div className="inspiration box">
+                <div className="label-container">
+                  <label htmlFor="inspiration">Inspiration</label>
+                </div>
+                <input id="inspiration" name="inspiration" type="checkbox" />
               </div>
-              <div style={{ marginTop: 6 }}>
-                <select
-                  value={skills[saveKey]}
-                  onChange={(e) => handleSkillChange(saveKey, e.target.value)}
-                >
-                  <option value="none">None</option>
-                  <option value="half">Half Proficient</option>
-                  <option value="proficient">Proficient</option>
-                  <option value="expertise">Expertise</option>
-                </select>
-                <small style={{ marginLeft: 8 }}>
-                  PB = {proficiencyBonus} | {abilityKey.toUpperCase()} mod ={" "}
-                  {fmt(modifiers[abilityKey] ?? 0)}
-                </small>
+              <div className="proficiencybonus box">
+                <div className="label-container">
+                  <label htmlFor="proficiencybonus">Proficiency Bonus</label>
+                </div>
+                <input id="proficiencybonus" name="proficiencybonus" value={fmt(proficiencyBonus)} readOnly />
               </div>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      {/* SKILLS */}
-      <section aria-labelledby="skills-title" className="section">
-        <h2 id="skills-title">Skills</h2>
-        <ul className="list-reset">
-          {[
-            ["Acrobatics (DEX)", "dex", "acrobatics"],
-            ["Animal Handling (WIS)", "wis", "animal_handling"],
-            ["Athletics (STR)", "str", "athletics"],
-            ["Crafting (INT)", "int", "crafting"],
-            ["Deception (CHA)", "cha", "deception"],
-            ["History (INT)", "int", "history"],
-            ["Illusion (WIS)", "wis", "illusion"],
-            ["Insight (WIS)", "wis", "insight"],
-            ["Intimidation (CHA)", "cha", "intimidation"],
-            ["Investigation (INT)", "int", "investigation"],
-            ["Martial Arts (STR)", "str", "martial_arts"],
-            ["Medicine (WIS)", "wis", "medicine"],
-            ["Nature (INT)", "int", "nature"],
-            ["Ninshou (INT)", "int", "ninshou"],
-            ["Perception (WIS)", "wis", "perception"],
-            ["Performance (CHA)", "cha", "performance"],
-            ["Persuasion (CHA)", "cha", "persuasion"],
-            ["Sleight of Hand (DEX)", "dex", "sleight_of_hand"],
-            ["Stealth (DEX)", "dex", "stealth"],
-            ["Survival (WIS)", "wis", "survival"],
-          ].map(([label, abilityKey, skillKey]) => (
-            <li key={skillKey} className="skill-row">
-              <div className="row">
-                <label htmlFor={skillKey}>{label}</label>
-                <input
-                  id={skillKey}
-                  type="text"
-                  readOnly
-                  value={fmt(getSkillBonus(abilityKey, skills[skillKey]))}
-                  className="total"
-                />
-              </div>
-              <div style={{ marginTop: 6 }}>
-                <select
-                  value={skills[skillKey]}
-                  onChange={(e) => handleSkillChange(skillKey, e.target.value)}
-                >
-                  <option value="none">None</option>
-                  <option value="half">Half Proficient</option>
-                  <option value="proficient">Proficient</option>
-                  <option value="expertise">Expertise</option>
-                </select>
-                <small style={{ marginLeft: 8 }}>
-                  PB = {proficiencyBonus} | {abilityKey.toUpperCase()} mod ={" "}
-                  {fmt(modifiers[abilityKey] ?? 0)}
-                </small>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      {/* FEATURES */}
-      <section aria-labelledby="features-title" className="section span-2">
-        <h2 id="features-title">Features</h2>
-
-        {featureSets.map((grp) => (
-          <details key={grp.key} style={{ marginBottom: 16 }}>
-            <summary style={{ fontWeight: 600 }}>{grp.label}</summary>
-
-            <ol style={{ paddingLeft: 18, marginTop: 8 }}>
-              {Array.from({ length: featureCount[grp.key] }).map((_, idx) => (
-                <li key={`${grp.key}_${idx}`} style={{ marginBottom: 14 }}>
-                  <label htmlFor={`${grp.key}_name_${idx}`}>Name</label>
-                  <input
-                    id={`${grp.key}_name_${idx}`}
-                    type="text"
-                    placeholder="Feature name"
-                  />
-
-                  <label htmlFor={`${grp.key}_level_${idx}`}>Level (optional)</label>
-                  <input id={`${grp.key}_level_${idx}`} type="number" min={1} placeholder="1" />
-
-                  <label htmlFor={`${grp.key}_notes_${idx}`}>Notes / Description</label>
-                  <textarea
-                    id={`${grp.key}_notes_${idx}`}
-                    placeholder="Describe the effect, uses, restrictions..."
-                  />
-                </li>
-              ))}
-            </ol>
-
-            <button type="button" onClick={() => addFeature(grp.key)}>
-              + Add {grp.label.slice(0, -1)}
-            </button>
-          </details>
-        ))}
-      </section>
-
-      {/* OFFENSE */}
-      <section aria-labelledby="offense-title" className="section">
-        <h2 id="offense-title">Weapons</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Weapon</th>
-              <th>Attack Bonus</th>
-              <th>Damage</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <input type="text" placeholder="Kunai" />
-              </td>
-              <td>
-                <input type="text" placeholder="+0" />
-              </td>
-              <td>
-                <input type="text" placeholder="1d4 piercing" />
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <input type="text" placeholder="Shuriken" />
-              </td>
-              <td>
-                <input type="text" placeholder="+0" />
-              </td>
-              <td>
-                <input type="text" placeholder="1d4 piercing" />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-
-      {/* JUTSU */}
-      <section aria-labelledby="jutsu-title" className="section span-2">
-        <h2 id="jutsu-title">Jutsu</h2>
-        <details open>
-          <summary>Known Jutsu</summary>
-          <ol style={{ paddingLeft: 18 }}>
-            {Array.from({ length: jutsuCount }).map((_, idx) => (
-              <li key={idx} style={{ marginBottom: 16 }}>
-                <label htmlFor={`jutsuName_${idx}`}>Name</label>
-                <input
-                  id={`jutsuName_${idx}`}
-                  type="text"
-                  placeholder="Fire Style: Fireball Jutsu"
-                />
-
-                <label htmlFor={`jutsuRank_${idx}`}>Rank</label>
-                <input id={`jutsuRank_${idx}`} type="text" placeholder="C" />
-
-                <label htmlFor={`jutsuCategory_${idx}`}>Category</label>
-                <select id={`jutsuCategory_${idx}`} defaultValue="">
-                  <option value="" disabled>
-                    Select a Type
-                  </option>
-                  {jutsuCategories.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
+              <div className="saves list-section box">
+                <ul>
+                  {savingThrows.map((save) => (
+                    <li key={save.key}>
+                      <label htmlFor={save.id}>{save.label}</label>
+                      <input id={save.id} type="text" value={fmt(getSavingThrowValue(save.key))} readOnly />
+                      <input
+                        id={`${save.id}-prof`}
+                        type="checkbox"
+                        checked={savingThrowProficiencies[save.key]}
+                        onChange={() => toggleSavingThrow(save.key)}
+                      />
+                    </li>
                   ))}
-                </select>
-
-                <label htmlFor={`jutsuKeywords_${idx}`}>Keywords</label>
-                <input id={`jutsuKeywords_${idx}`} type="text" placeholder="-" />
-
-                <label htmlFor={`jutsuCost_${idx}`}>Cost</label>
-                <input id={`jutsuCost_${idx}`} type="text" placeholder="-" />
-
-                <label htmlFor={`jutsuDesc_${idx}`}>Description</label>
-                <textarea id={`jutsuDesc_${idx}`} placeholder="..." />
-              </li>
-            ))}
-          </ol>
-          <button type="button" onClick={addJutsu}>
-            + Add Jutsu
-          </button>
-        </details>
-      </section>
-
-      {/* STORY / TRAITS */}
-      <section aria-labelledby="fluff-title" className="section">
-        <h2 id="fluff-title">Story & Traits</h2>
-        <div>
-          <label>Personality</label>
-          <textarea placeholder="..." />
-        </div>
-        <div>
-          <label>Ideals</label>
-          <textarea placeholder="..." />
-        </div>
-        <div>
-          <label>Bonds</label>
-          <textarea placeholder="..." />
-        </div>
-        <div>
-          <label>Flaws</label>
-          <textarea placeholder="..." />
-        </div>
-        <div>
-          <label>Backstory</label>
-          <textarea placeholder="..." />
-        </div>
-      </section>
-
-      <footer>
-        <small>v0 – HTML skeleton only. Styling and logic will come later.</small>
-      </footer>
-    </main>
+                </ul>
+                <div className="label">Saving Throws</div>
+              </div>
+              <div className="skills list-section box">
+                <ul>
+                  {skillList.map((skill) => {
+                    const skillId = slugify(skill.name);
+                    return (
+                      <li key={skill.key}>
+                        <label htmlFor={skillId}>
+                          {skill.name} <span className="skill">({skill.abilityLabel})</span>
+                        </label>
+                        <input id={skillId} type="text" value={fmt(getSkillValue(skill))} readOnly />
+                        <input
+                          id={`${skillId}-prof`}
+                          type="checkbox"
+                          checked={skillProficiencies[skill.key]}
+                          onChange={() => toggleSkill(skill.key)}
+                        />
+                      </li>
+                    );
+                  })}
+                </ul>
+                <div className="label">Skills</div>
+              </div>
+            </div>
+          </section>
+          <div className="passive-perception box">
+            <div className="label-container">
+              <label htmlFor="passiveperception">Passive Wisdom (Perception)</label>
+            </div>
+            <input id="passiveperception" name="passiveperception" value={passivePerception} readOnly />
+          </div>
+          <div className="otherprofs box textblock">
+            <label htmlFor="otherprofs">Other Proficiencies and Languages</label>
+            <textarea id="otherprofs" name="otherprofs"></textarea>
+          </div>
+        </section>
+        <section>
+          <section className="combat">
+            <div className="armorclass">
+              <div>
+                <label htmlFor="ac">Armor Class</label>
+                <input id="ac" name="ac" placeholder="10" type="text" />
+              </div>
+            </div>
+            <div className="initiative">
+              <div>
+                <label htmlFor="initiative">Initiative</label>
+                <input id="initiative" name="initiative" placeholder="+0" type="text" />
+              </div>
+            </div>
+            <div className="speed">
+              <div>
+                <label htmlFor="speed">Speed</label>
+                <input id="speed" name="speed" placeholder="30" type="text" />
+              </div>
+            </div>
+            <div className="hp">
+              <div className="resource-card hp-card">
+                <div className="resource-header">
+                  <label htmlFor="maxhp">Max HP</label>
+                  <input
+                    id="maxhp"
+                    name="maxhp"
+                    type="number"
+                    value={hitPoints.max}
+                    onChange={handleHitPointChange("max")}
+                    placeholder="16"
+                  />
+                </div>
+                <div className="resource-current">
+                  <label htmlFor="currenthp">Current HP</label>
+                  <input
+                    id="currenthp"
+                    name="currenthp"
+                    type="number"
+                    value={hitPoints.current}
+                    onChange={handleHitPointChange("current")}
+                    placeholder="16"
+                  />
+                </div>
+                <div className="resource-temp">
+                  <label htmlFor="temphp">Temp. HP</label>
+                  <input
+                    id="temphp"
+                    name="temphp"
+                    type="number"
+                    value={hitPoints.temp}
+                    onChange={handleHitPointChange("temp")}
+                    placeholder="0"
+                  />
+                </div>
+                <div className="resource-gauge" aria-hidden="true">
+                  <span className="resource-gauge-fill" style={{ transform: `scaleY(${hpFill})` }} />
+                </div>
+              </div>
+            </div>
+            <div className="chakra">
+              <div className="resource-card chakra-card">
+                <div className="resource-header">
+                  <label htmlFor="maxchakra">Max CP</label>
+                  <input
+                    id="maxchakra"
+                    name="maxchakra"
+                    type="number"
+                    value={chakraPoints.max}
+                    onChange={handleChakraPointChange("max")}
+                    placeholder="22"
+                  />
+                </div>
+                <div className="resource-current">
+                  <label htmlFor="currentchakra">Current CP</label>
+                  <input
+                    id="currentchakra"
+                    name="currentchakra"
+                    type="number"
+                    value={chakraPoints.current}
+                    onChange={handleChakraPointChange("current")}
+                    placeholder="22"
+                  />
+                </div>
+                <div className="resource-temp">
+                  <label htmlFor="tempchakra">Temp. Chakra</label>
+                  <input
+                    id="tempchakra"
+                    name="tempchakra"
+                    type="number"
+                    value={chakraPoints.temp}
+                    onChange={handleChakraPointChange("temp")}
+                    placeholder="0"
+                  />
+                </div>
+                <div className="resource-gauge" aria-hidden="true">
+                  <span className="resource-gauge-fill" style={{ transform: `scaleY(${chakraFill})` }} />
+                </div>
+              </div>
+            </div>
+            <div className="hitdice">
+              <div>
+                <div className="total">
+                  <label htmlFor="totalhd">Total</label>
+                  <input id="totalhd" name="totalhd" placeholder="2d10" type="text" />
+                </div>
+                <div className="remaining">
+                  <label htmlFor="remaininghd">Hit Dice</label>
+                  <input id="remaininghd" name="remaininghd" type="text" />
+                </div>
+              </div>
+            </div>
+            <div className="chakradice">
+              <div>
+                <div className="total">
+                  <label htmlFor="totalcd">Total</label>
+                  <input id="totalcd" name="totalcd" placeholder="2d8" type="text" />
+                </div>
+                <div className="remaining">
+                  <label htmlFor="remainingcd">Chakra Dice</label>
+                  <input id="remainingcd" name="remainingcd" type="text" />
+                </div>
+              </div>
+            </div>
+            <div className="deathsaves">
+              <div>
+                <div className="label">
+                  <label>Death Saves</label>
+                </div>
+                <div className="marks">
+                  <div className="deathsuccesses">
+                    <label htmlFor="deathsuccess1">Successes</label>
+                    <div className="bubbles">
+                      <input id="deathsuccess1" name="deathsuccess1" type="checkbox" />
+                      <input id="deathsuccess2" name="deathsuccess2" type="checkbox" />
+                      <input id="deathsuccess3" name="deathsuccess3" type="checkbox" />
+                    </div>
+                  </div>
+                  <div className="deathfails">
+                    <label htmlFor="deathfail1">Failures</label>
+                    <div className="bubbles">
+                      <input id="deathfail1" name="deathfail1" type="checkbox" />
+                      <input id="deathfail2" name="deathfail2" type="checkbox" />
+                      <input id="deathfail3" name="deathfail3" type="checkbox" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section className="attacksandspellcasting">
+            <div>
+              <label>Attacks &amp; Jutsu</label>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Atk Bonus</th>
+                    <th>Damage/Type</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[1, 2, 3].map((row) => (
+                    <tr key={row}>
+                      <td>
+                        <input name={`atkname${row}`} type="text" />
+                      </td>
+                      <td>
+                        <input name={`atkbonus${row}`} type="text" />
+                      </td>
+                      <td>
+                        <input name={`atkdamage${row}`} type="text" />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <textarea placeholder="Additional attacks, jutsu, or notes"></textarea>
+            </div>
+          </section>
+          <section className="equipment">
+            <div>
+              <label>Equipment</label>
+              <div className="money">
+                <ul>
+                  {moneyTypes.map((money) => (
+                    <li key={money}>
+                      <label htmlFor={money}>{money}</label>
+                      <input id={money} name={money} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <textarea placeholder="Equipment list here"></textarea>
+            </div>
+          </section>
+        </section>
+        <section>
+          <section className="flavor">
+            <div className="personality">
+              <label htmlFor="personality">Personality</label>
+              <textarea id="personality" name="personality"></textarea>
+            </div>
+            <div className="ideals">
+              <label htmlFor="ideals">Ideals</label>
+              <textarea id="ideals" name="ideals"></textarea>
+            </div>
+            <div className="bonds">
+              <label htmlFor="bonds">Bonds</label>
+              <textarea id="bonds" name="bonds"></textarea>
+            </div>
+            <div className="flaws">
+              <label htmlFor="flaws">Flaws</label>
+              <textarea id="flaws" name="flaws"></textarea>
+            </div>
+          </section>
+          <section className="features">
+            <div>
+              <label htmlFor="features">Features &amp; Traits</label>
+              <textarea id="features" name="features"></textarea>
+            </div>
+          </section>
+        </section>
+      </main>
+    </form>
   );
 }
