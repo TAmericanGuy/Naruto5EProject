@@ -207,17 +207,11 @@ export default function App() {
         <section className="charname">
           <label htmlFor="charname">Character Name</label>
           <input id="charname" name="charname" />
+          <label htmlFor="playername">Player Name</label>
+          <input id="playername" name="playername" placeholder="Player McPlayerface" />
         </section>
         <section className="identity-card">
           <div className="identity-grid">
-            <div className="field class-field">
-              <label htmlFor="class">Class</label>
-              <input id="class" name="class" placeholder="Genin" />
-            </div>
-            <div className="field clan-field">
-              <label htmlFor="clan">Clan</label>
-              <input id="clan" name="clan" placeholder="Uchiha" />
-            </div>
             <div className="field level-field">
               <label htmlFor="level">Level</label>
               <input
@@ -228,8 +222,15 @@ export default function App() {
                 max={20}
                 value={levelInput}
                 onChange={(event) => setLevelInput(event.target.value)}
-                onBlur={() => setLevelInput(String(level))}
-              />
+                onBlur={() => setLevelInput(String(level))}/>
+            </div>
+            <div className="field class-field">
+              <label htmlFor="class">Class</label>
+              <input id="class" name="class" placeholder="Genin" />
+            </div>
+            <div className="field clan-field">
+              <label htmlFor="clan">Clan</label>
+              <input id="clan" name="clan" placeholder="Uchiha" />
             </div>
             <div className="field background-field">
               <label htmlFor="background">Background</label>
@@ -241,40 +242,61 @@ export default function App() {
             </div>
             <div className="field experience-field">
               <label htmlFor="experiencepoints">Experience Points</label>
-              <input id="experiencepoints" name="experiencepoints" placeholder="3240" />
-            </div>
-            <div className="field ninja-field">
-              <label htmlFor="ninjaRank">Ninja Rank</label>
-              <input id="ninjaRank" name="ninjaRank" placeholder="Chuunin" />
+              <input
+              id="experiencepoints"
+              name="experiencepoints"
+              placeholder="3240"/>
             </div>
             <div className="field alignment-field">
               <label htmlFor="alignment">Alignment</label>
-              <input id="alignment" name="alignment" placeholder="Neutral Good" />
-            </div>
-            <div className="field nature-affinity">
-              <span className="nature-title">Nature Affinity</span>
-              <div className="nature-options">
-                {natureOptions.map((option) => {
-                  const optionId = `nature-${slugify(option)}`;
-                  return (
-                    <label key={option} htmlFor={optionId}>
-                      <input
-                        id={optionId}
-                        type="checkbox"
-                        checked={natureAffinity.includes(option)}
-                        onChange={() => toggleNature(option)}
-                      />
-                      <span>{option}</span>
-                    </label>
-                  );
-                })}
-              </div>
+              <input
+              id="alignment"
+              name="alignment"
+              placeholder="Neutral Good"/>
             </div>
           </div>
-        </section>
-        <section className="player-card">
-          <label htmlFor="playername">Player Name</label>
-          <input id="playername" name="playername" placeholder="Player McPlayerface" />
+          <div className="field nature-affinity">
+            <span className="nature-title">Nature Affinity</span>
+            <div className="nature-wheel">
+              <button
+              type="button"
+              className={`nature-node nature-fire ${natureAffinity.includes("Fire") ? "is-active" : ""}`}
+              onClick={() => toggleNature("Fire")}>
+              <span className="nature-node-label">Fire</span>
+              </button>
+              <button
+              type="button"
+              className={`nature-node nature-wind ${natureAffinity.includes("Wind") ? "is-active" : ""}`}
+              onClick={() => toggleNature("Wind")}>
+              <span className="nature-node-label">Wind</span>
+              </button>
+              <button
+              type="button"
+              className={`nature-node nature-lightning ${natureAffinity.includes("Lightning") ? "is-active" : ""}`}
+              onClick={() => toggleNature("Lightning")}>
+              <span className="nature-node-label">Lightning</span>
+              </button>
+              <button
+              type="button"
+              className={`nature-node nature-earth ${natureAffinity.includes("Earth") ? "is-active" : ""}`}
+              onClick={() => toggleNature("Earth")}>
+              <span className="nature-node-label">Earth</span>
+              </button>
+              <button
+              type="button"
+              className={`nature-node nature-water ${natureAffinity.includes("Water") ? "is-active" : ""}`}
+              onClick={() => toggleNature("Water")}>
+              <span className="nature-node-label">Water</span>
+              </button>
+              <button
+              type="button"
+              className={`nature-node nature-medical ${
+              natureAffinity.includes("Medical") ? "is-active" : ""}`}
+              onClick={() => toggleNature("Medical")}>
+              <span className="nature-node-label">Medical</span>
+              </button>
+            </div>
+          </div>
         </section>
       </header>
       <main>
