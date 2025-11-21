@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import "./styles.css";
 
 const abilityList = [
@@ -31,6 +31,7 @@ const skillList = [
   { name: "Stealth", key: "stealth", ability: "dex", abilityLabel: "Dex" },
   { name: "Survival", key: "survival", ability: "wis", abilityLabel: "Wis" },
 ];
+
 
 const savingThrows = abilityList.map((ability) => ({
   key: ability.key,
@@ -90,10 +91,39 @@ function getGaugeFill(current, max) {
   return Math.max(0, Math.min(1, ratio));
 }
 
+function getVitalityColorClass(percent) {
+  if (percent > 50) return "vitality-high";
+  if (percent > 25) return "vitality-mid";
+  return "vitality-low";
+}
+
+
 export default function App() {
   const [levelInput, setLevelInput] = useState("1");
   const level = clampLevel(levelInput);
   const proficiencyBonus = pbFromLevel(level);
+  const [portraitUrl, setPortraitUrl] = useState(null);
+  const fileInputRef = useRef(null);
+  const vitalityPercent = 100;
+
+  function handlePortraitChange(event) {
+    const file = event.target.files && event.target.files[0]
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPortraitUrl(reader.result);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleClearPortrait() {
+    setPortraitUrl(null);
+
+    const input = document.getElementById("portrait-input");
+    if (input) {
+      input.value = "";
+    }
+  }
 
   const [abilitiesState, setAbilitiesState] = useState(() =>
     abilityList.reduce(
@@ -205,10 +235,41 @@ export default function App() {
     <form className="charsheet">
       <header>
         <section className="charname">
+          <div className="portrait">
+            <div className="portrait-frame" style={portraitUrl ?{backgroundImage: `url(${portraitUrl})`, backgroundSize: "cover", backgroundPosition: "center",} : {}}>
+              {!portraitUrl && (
+                <span className="portrait-placeholder">Character Portrait</span>
+              )}
+            </div>
+            <div className="portrait-buttons">
+              <input
+                id="portrait-input"
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={handlePortraitChange}/>
+              <label className="portrait-upload" htmlFor="portrait-input"> Upload Image</label>
+              <button type="button" className="portrait-clear" onClick={handleClearPortrait}>Clear Image</button>
+              </div>
+          </div>
+          <div className="resource-bars">
+            <div className="resource">
+              <span className="resource-label">Health Points</span>
+              <div className="resource-track">
+                <div className={`resource-fill ${getVitalityColorClass(vitalityPercent)}`} 
+                style={{ width: `${vitalityPercent}%` }} />
+              </div>
+            </div>
+    <div className="resource">
+      <span className="resource-label">Chakra Points</span>
+      <div className="resource-track">
+        <div className="resource-fill resource-chakra" style={{ width: "75%" }} />
+      </div>
+            </div>
+          </div>
           <label htmlFor="charname">Character Name</label>
           <input id="charname" name="charname" />
-          <label htmlFor="playername">Player Name</label>
-          <input id="playername" name="playername" placeholder="Player McPlayerface" />
         </section>
         <section className="identity-card">
           <div className="identity-grid">
@@ -224,9 +285,16 @@ export default function App() {
                 onChange={(event) => setLevelInput(event.target.value)}
                 onBlur={() => setLevelInput(String(level))}/>
             </div>
+            <div className="medical-affinity">
+              <span className="field-label">Medical Affinity</span>
+              <button
+                type="button"
+                className={`medical-node ${natureAffinity.includes("Medical") ? "is-active" : ""}`}
+                onClick={() => toggleNature("Medical")}/>
+            </div>
             <div className="field class-field">
               <label htmlFor="class">Class</label>
-              <input id="class" name="class" placeholder="Genin" />
+              <input id="class" name="class" placeholder="Hunter-nin" />
             </div>
             <div className="field clan-field">
               <label htmlFor="clan">Clan</label>
@@ -257,43 +325,46 @@ export default function App() {
           </div>
           <div className="field nature-affinity">
             <span className="nature-title">Nature Affinity</span>
-            <div className="nature-wheel">
-              <button
-              type="button"
-              className={`nature-node nature-fire ${natureAffinity.includes("Fire") ? "is-active" : ""}`}
-              onClick={() => toggleNature("Fire")}>
-              <span className="nature-node-label">Fire</span>
+            <div className="nature-list">
+  <button
+    type="button"
+    className={`nature-list-item ${natureAffinity.includes("Fire") ? "is-active" : ""}`}
+    onClick={() => toggleNature("Fire")}
+  >
+    <span className="nature-list-icon nature-icon-fire" />
+    <span className="nature-list-label">Fire</span>
+  </button>
+
+  <button
+    type="button"
+    className={`nature-list-item ${natureAffinity.includes("Wind") ? "is-active" : ""}`}
+    onClick={() => toggleNature("Wind")}
+  >
+    <span className="nature-list-icon nature-icon-wind" />
+    <span className="nature-list-label">Wind</span>
+  </button>
+
+  <button
+    type="button"
+    className={`nature-list-item ${natureAffinity.includes("Lightning") ? "is-active" : ""}`}
+    onClick={() => toggleNature("Lightning")}
+  >
+    <span className="nature-list-icon nature-icon-lightning" />
+    <span className="nature-list-label">Lightning</span>
+  </button>
+               <button
+                type="button"
+                className={`nature-list-item ${natureAffinity.includes("Earth") ? "is-active" : ""}`}
+                onClick={() => toggleNature("Earth")}>
+                <span className="nature-list-icon nature-icon-earth" />
+                <span className="nature-list-label">Earth</span>
               </button>
               <button
-              type="button"
-              className={`nature-node nature-wind ${natureAffinity.includes("Wind") ? "is-active" : ""}`}
-              onClick={() => toggleNature("Wind")}>
-              <span className="nature-node-label">Wind</span>
-              </button>
-              <button
-              type="button"
-              className={`nature-node nature-lightning ${natureAffinity.includes("Lightning") ? "is-active" : ""}`}
-              onClick={() => toggleNature("Lightning")}>
-              <span className="nature-node-label">Lightning</span>
-              </button>
-              <button
-              type="button"
-              className={`nature-node nature-earth ${natureAffinity.includes("Earth") ? "is-active" : ""}`}
-              onClick={() => toggleNature("Earth")}>
-              <span className="nature-node-label">Earth</span>
-              </button>
-              <button
-              type="button"
-              className={`nature-node nature-water ${natureAffinity.includes("Water") ? "is-active" : ""}`}
-              onClick={() => toggleNature("Water")}>
-              <span className="nature-node-label">Water</span>
-              </button>
-              <button
-              type="button"
-              className={`nature-node nature-medical ${
-              natureAffinity.includes("Medical") ? "is-active" : ""}`}
-              onClick={() => toggleNature("Medical")}>
-              <span className="nature-node-label">Medical</span>
+                type="button"
+                className={`nature-list-item ${natureAffinity.includes("Water") ? "is-active" :           ""}`}
+                onClick={() => toggleNature("Water")}>
+                <span className="nature-list-icon nature-icon-water" />
+                <span className="nature-list-label">Water</span>
               </button>
             </div>
           </div>

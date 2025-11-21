@@ -98,6 +98,118 @@ body {
   content: "Player Name";
 }
 
+.portrait {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.portrait-frame {
+  width: 140px;
+  height: 180px;
+  border-radius: 18px;
+  border: 1px dashed var(--border-soft);
+  background: rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+  background-repeat: no-repeat;
+}
+
+.portrait-placeholder {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--soft-ink);
+  opacity: 0.7;
+  text-align: center;
+}
+
+.portrait-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  justify-content: center;
+}
+
+.portrait-upload,
+.portrait-clear {
+  font-size: 11px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 0.14em;
+}
+
+.portrait-clear {
+  background: transparent;
+  color: var(--soft-ink);
+  opacity: 0.8;
+}
+
+.portrait-clear:hover {
+  opacity: 1;
+}
+
+/* --- RESOURCE BARS --- */
+.resource-bars {
+  width: 100%;
+  margin-bottom: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.resource {
+  width: 100%;
+}
+
+.resource-label {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--soft-ink);
+  margin-bottom: 4px;
+}
+
+.resource-track {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: inset 0 0 0 1px var(--border-soft);
+  overflow: hidden;
+}
+
+.resource-fill {
+  height: 100%;
+  border-radius: inherit;
+}
+
+.vitality-high {
+  background: linear-gradient(to right, #81c784, #cddc39); /* verde */
+}
+
+.vitality-mid {
+  background: linear-gradient(to right, #ffd54f, #ffb300); /* amarelo */
+}
+
+.vitality-low {
+  background: linear-gradient(to right, #e57373, #ff7043); /* vermelho */
+}
+
+.resource-chakra {
+  background: linear-gradient(to right, #6ab7ff, #8de1ff);
+}
 
 .charsheet label {
   font-size: 10px;
@@ -208,134 +320,111 @@ body {
     0 8px 18px rgba(0, 0, 0, 0.16);
 }
 
-.nature-affinity {
-  grid-column: 1 / -1;
-  margin-top: 16px;
-  padding: 12px 14px 10px;
-  border-radius: 18px;
-  border: 1px dashed var(--border-soft);
-  background: rgba(255, 255, 255, 0.6);
+.medical-affinity {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 140px; /* opcional, só pra não ficar enorme */
 }
 
-.nature-wheel {
-  position: relative;
-  width: 180px;
-  height: 180px;
-  margin: 0 auto;
-}
-
-.nature-node {
-  position: absolute;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
+.medical-node {
+  width: 40px;
+  height: 40px;
   border: none;
+  border-radius: 50%;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  display: flex; 
-  align-items: center;
-  justify-content: center;
-  padding: 6px;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, color 0.15s ease;
-  font-size: 10px;
+  align-self: flex-start;
+  background-image: url("https://i.imgur.com/DuB4a5I.png"); /* cinza */
+}
+
+.medical-node.is-active {
+  background-image: url("https://i.imgur.com/HjiOVvz.png"); /* colorido */
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+}
+
+.nature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.nature-list-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.nature-list-label {
+  font-size: 11px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  text-align: center;
   color: var(--soft-ink);
-  transform: translate(-50%, -50%)
 }
 
-.nature-node:hover {
-  transform: translate(-50%, -50%) scale(1.03);
+.nature-list-icon {
+  width: 28px;
+  height: 28px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: grayscale(1);
+  transition: filter 0.15s ease, transform 0.15s ease;
 }
 
-.nature-node-label {
-  position: absolute;
-  bottom: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--soft-ink);
-  pointer-events: none;
+.nature-list-item.is-active .nature-list-icon {
+  filter: grayscale(0);
+  transform: translateY(-1px);
 }
 
-.nature-node.is-active {
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15);
-  color: #fff;
+.nature-icon-fire {
+  background-image: url("https://i.imgur.com/iizuDRK.png"); 
 }
 
-.nature-fire {
-  top: 11%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-image: url("https://i.imgur.com/iizuDRK.png");
-}
-
-.nature-wind {
-  top: 35%;
-  left: 82%;
-  transform: translate(-50%, -50%);
+.nature-icon-wind {
   background-image: url("https://i.imgur.com/WnaaDyj.png");
 }
 
-.nature-lightning {
-  top: 74%;
-  left: 76%;
-  transform: translate(-50%, -50%);
+.nature-icon-lightning {
   background-image: url("https://i.imgur.com/zAoP0Nr.png");
 }
 
-.nature-earth {
-  top: 74%;
-  left: 24%;
-  transform: translate(-50%, -50%);
+.nature-icon-earth {
   background-image: url("https://i.imgur.com/zZSCO2D.png");
 }
 
-.nature-water {
-  top: 35%;
-  left: 18%;
-  transform: translate(-50%, -50%);
+.nature-icon-water {
   background-image: url("https://i.imgur.com/daUgzrX.png");
 }
 
-.nature-medical {
-  top: 50%;
-  left: 50%;
-  width: 60px;
-  height: 60px;
-  transform: translate(-50%, -50%);
-  font-size: 11px;
-  background-image: url("https://i.imgur.com/DuB4a5I.png");
-}
-
-.nature-fire.is-active {
+.nature-list-item.is-active .nature-icon-fire {
   background-image: url("https://i.imgur.com/I0e5luv.png");
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.25); 
 }
 
-.nature-wind.is-active {
+
+.nature-list-item.is-active .nature-icon-wind {
   background-image: url("https://i.imgur.com/Rwq8aHL.png");
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.25); 
+
 }
 
-.nature-lightning.is-active {
+.nature-list-item.is-active .nature-icon-lightning {
   background-image: url("https://i.imgur.com/YkWK0DA.png");
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.25); 
 }
 
-.nature-earth.is-active {
+.nature-list-item.is-active .nature-icon-earth {
   background-image: url("https://i.imgur.com/BSqBX00.png");
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.25); 
 }
 
-.nature-water.is-active {
+.nature-list-item.is-active .nature-icon-water {
   background-image: url("https://i.imgur.com/UisenY4.png");
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.25); 
 }
 
 .nature-medical.is-active {
