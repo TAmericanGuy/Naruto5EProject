@@ -5,8 +5,8 @@ const abilityList = [
   { name: "Strength", key: "str", scoreId: "Strengthscore" },
   { name: "Dexterity", key: "dex", scoreId: "Dexterityscore" },
   { name: "Constitution", key: "con", scoreId: "Constitutionscore" },
+  { name: "Intelligence", key: "int", scoreId: "Intelligencescore" },  
   { name: "Wisdom", key: "wis", scoreId: "Wisdomscore" },
-  { name: "Intelligence", key: "int", scoreId: "Intelligencescore" },
   { name: "Charisma", key: "cha", scoreId: "Charismascore" },
 ];
 
@@ -39,7 +39,7 @@ const savingThrows = abilityList.map((ability) => ({
   id: `${slugify(ability.name)}-save`,
 }));
 
-const moneyTypes = ["cp", "sp", "ep", "gp", "pp"];
+const moneyTypes = ["Ryo's"];
 const natureOptions = ["Fire", "Wind", "Lightning", "Earth", "Water", "Medical"];
 
 function slugify(value) {
@@ -261,11 +261,11 @@ export default function App() {
                 style={{ width: `${vitalityPercent}%` }} />
               </div>
             </div>
-    <div className="resource">
-      <span className="resource-label">Chakra Points</span>
-      <div className="resource-track">
-        <div className="resource-fill resource-chakra" style={{ width: "75%" }} />
-      </div>
+            <div className="resource">
+              <span className="resource-label">Chakra Points</span>
+              <div className="resource-track">
+                <div className="resource-fill resource-chakra" style={{ width: "75%" }} />
+              </div>
             </div>
           </div>
           <label htmlFor="charname">Character Name</label>
@@ -286,11 +286,11 @@ export default function App() {
                 onBlur={() => setLevelInput(String(level))}/>
             </div>
             <div className="medical-affinity">
-              <span className="field-label">Medical Affinity</span>
               <button
                 type="button"
                 className={`medical-node ${natureAffinity.includes("Medical") ? "is-active" : ""}`}
                 onClick={() => toggleNature("Medical")}/>
+                <span className="field-label">Medical Affinity</span>
             </div>
             <div className="field class-field">
               <label htmlFor="class">Class</label>
@@ -324,34 +324,29 @@ export default function App() {
             </div>
           </div>
           <div className="field nature-affinity">
-            <span className="nature-title">Nature Affinity</span>
+            <span className="field-label nature-label">Nature Affinity</span>
             <div className="nature-list">
-  <button
-    type="button"
-    className={`nature-list-item ${natureAffinity.includes("Fire") ? "is-active" : ""}`}
-    onClick={() => toggleNature("Fire")}
-  >
-    <span className="nature-list-icon nature-icon-fire" />
-    <span className="nature-list-label">Fire</span>
-  </button>
-
-  <button
-    type="button"
-    className={`nature-list-item ${natureAffinity.includes("Wind") ? "is-active" : ""}`}
-    onClick={() => toggleNature("Wind")}
-  >
-    <span className="nature-list-icon nature-icon-wind" />
-    <span className="nature-list-label">Wind</span>
-  </button>
-
-  <button
-    type="button"
-    className={`nature-list-item ${natureAffinity.includes("Lightning") ? "is-active" : ""}`}
-    onClick={() => toggleNature("Lightning")}
-  >
-    <span className="nature-list-icon nature-icon-lightning" />
-    <span className="nature-list-label">Lightning</span>
-  </button>
+              <button
+                type="button"
+                className={`nature-list-item ${natureAffinity.includes("Fire") ? "is-active" : ""}`}
+                onClick={() => toggleNature("Fire")}>
+                <span className="nature-list-icon nature-icon-fire" />
+                <span className="nature-list-label">Fire</span>
+              </button>
+              <button
+                type="button"
+                className={`nature-list-item ${natureAffinity.includes("Wind") ? "is-active" : ""}`}
+                onClick={() => toggleNature("Wind")}>
+                <span className="nature-list-icon nature-icon-wind" />
+                <span className="nature-list-label">Wind</span>
+              </button>
+              <button
+                type="button"
+                className={`nature-list-item ${natureAffinity.includes("Lightning") ? "is-active" : ""}`}
+                onClick={() => toggleNature("Lightning")}>
+                <span className="nature-list-icon nature-icon-lightning" />
+                <span className="nature-list-label">Lightning</span>
+               </button>
                <button
                 type="button"
                 className={`nature-list-item ${natureAffinity.includes("Earth") ? "is-active" : ""}`}
@@ -373,30 +368,29 @@ export default function App() {
       <main>
         <section>
           <section className="attributes">
-            <div className="scores">
-              <ul>
-                {abilityList.map((ability) => {
-                  const modifierId = `${ability.scoreId}-mod`;
-                  return (
-                    <li key={ability.key}>
-                      <div className="score">
-                        <label htmlFor={ability.scoreId}>{ability.name}</label>
-                        <input
-                          id={ability.scoreId}
-                          name={ability.scoreId}
-                          type="number"
-                          value={abilitiesState[ability.key]}
-                          onChange={handleAbilityChange(ability.key)}
-                        />
-                      </div>
-                      <div className="modifier">
-                        <input id={modifierId} name={modifierId} value={fmt(abilityModifiers[ability.key])} readOnly />
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
+            <div className="combat-abilities-row">
+              {abilityList.map((ability) => (
+                <div key={ability.key} className="combat-ability">            
+                <div className="combat-ability-mod">
+                  {fmt(abilityModifiers[ability.key])}
+                  <span className="mod-label">Mod</span>
+                </div>
+                <div className="combat-ability-main">
+                  <input 
+                    className="combat-ability-score-input"
+                    type="number"
+                    value={abilitiesState[ability.key]}
+                    onChange={handleAbilityChange(ability.key)} />
+                  <div className="combat-ability-save">
+                    {fmt(getSavingThrowValue(ability.key))} 
+                  </div>
+                  <div className="combat-ability-label">
+                    {ability.name}
+                  </div>
+                </div>
+              </div>
+              ))} 
+            </div>            
             <div className="attr-applications">
               <div className="inspiration box">
                 <div className="label-container">

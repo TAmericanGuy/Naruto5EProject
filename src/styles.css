@@ -58,7 +58,7 @@ body {
 .identity-card,
 .player-card {
   position: relative;
-  padding: 32px 24px 52px; 
+  padding: 32px 24px 52px;
   border-radius: 26px;
   border: 1px solid var(--border-strong);
   background: linear-gradient(to bottom, var(--paper-top), var(--paper-bottom));
@@ -67,7 +67,6 @@ body {
   flex-direction: column;
   justify-content: flex-start;
 }
-
 
 .charname::after,
 .identity-card::after,
@@ -85,7 +84,6 @@ body {
   text-transform: uppercase;
   color: var(--soft-ink);
 }
-
 
 .charname::after {
   content: "";
@@ -238,7 +236,6 @@ body {
   box-shadow: 0 0 0 1px rgba(155, 135, 112, 0.4);
 }
 
-
 .charname {
   display: flex;
   flex-direction: column;
@@ -256,7 +253,6 @@ body {
   margin-top: auto;
 }
 
-
 .identity-grid {
   display: grid;
   grid-template-columns: 120px 1fr 1fr;
@@ -265,15 +261,13 @@ body {
   align-items: center;
 }
 
-
 .identity-grid .field input {
   border-radius: 12px;
 }
 
-
 .level-field {
   grid-row: 1 / 3;
-  grid-column: 1; 
+  grid-column: 1;
   align-self: stretch;
 }
 
@@ -321,11 +315,12 @@ body {
 }
 
 .medical-affinity {
-  margin-top: 18px;
+  margin-top: 12px;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  max-width: 140px; /* opcional, só pra não ficar enorme */
+  max-width: 140px;
+  align-items: flex-start;
 }
 
 .medical-node {
@@ -337,13 +332,23 @@ body {
   background-position: center;
   background-repeat: no-repeat;
   cursor: pointer;
-  align-self: flex-start;
+  align-self: center;
+  transform: translateX(-10px);
   background-image: url("https://i.imgur.com/DuB4a5I.png"); /* cinza */
+}
+
+.medical-label {
+  text-align: center;
 }
 
 .medical-node.is-active {
   background-image: url("https://i.imgur.com/HjiOVvz.png"); /* colorido */
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+}
+
+.nature-label {
+  display: inline-block;
+  margin-top: 8px;
 }
 
 .nature-list {
@@ -386,7 +391,7 @@ body {
 }
 
 .nature-icon-fire {
-  background-image: url("https://i.imgur.com/iizuDRK.png"); 
+  background-image: url("https://i.imgur.com/iizuDRK.png");
 }
 
 .nature-icon-wind {
@@ -409,10 +414,8 @@ body {
   background-image: url("https://i.imgur.com/I0e5luv.png");
 }
 
-
 .nature-list-item.is-active .nature-icon-wind {
   background-image: url("https://i.imgur.com/Rwq8aHL.png");
-
 }
 
 .nature-list-item.is-active .nature-icon-lightning {
@@ -428,7 +431,7 @@ body {
 }
 
 .nature-medical.is-active {
-  background-image: url("https://imgur.com/HjiOVvz.png"); 
+  background-image: url("https://imgur.com/HjiOVvz.png");
 }
 
 .nature-affinity .nature-title {
@@ -445,7 +448,6 @@ body {
   flex-wrap: wrap;
   gap: 8px;
 }
-
 
 .nature-options label {
   display: inline-flex;
@@ -468,6 +470,110 @@ body {
   text-shadow: 0 0 1px rgba(0, 0, 0, 0.15);
 }
 
+/* ========================= */
+/*      ABILITY BOXES        */
+/* ========================= */
+
+.combat-abilities-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 40px 0 24px;
+}
+
+.combat-ability {
+  position: relative;
+  width: 130px;
+}
+
+.combat-ability-main {
+  border-radius: 22px;
+  border: 1px solid var(--border-strong);
+  background: linear-gradient(to bottom, var(--paper-top), var(--paper-bottom));
+  box-shadow: var(--shadow-soft);
+  padding: 18px 10px 20px;
+  text-align: center;
+}
+
+.combat-ability-score-input {
+  font-family: "Cinzel", serif !important;
+  font-size: 42px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  width: 70px;
+  text-align: center;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--soft-ink) !important;
+  outline: none;
+  margin: 0 auto 6px;
+  display: block;
+}
+
+.combat-ability-score-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.combat-ability-save {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--soft-ink);
+  opacity: 0.85;
+  margin-bottom: 6px;
+}
+
+.save-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  margin-right: 4px;
+  opacity: 0.7;
+}
+
+.combat-ability-label {
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--soft-ink);
+}
+
+.combat-ability-mod {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 60px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: #ffffff;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+}
+
+.mod-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--soft-ink);
+}
+
+.mod-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  opacity: 0.7;
+}
+
+
+/* ========================= */
 
 @media (max-width: 900px) {
   .charsheet > header {
@@ -479,5 +585,11 @@ body {
   .player-card {
     max-width: 420px;
     margin: 0 auto;
+  }
+
+  .combat-abilities-row {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 24px;
   }
 }
