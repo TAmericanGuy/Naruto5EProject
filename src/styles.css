@@ -508,7 +508,7 @@ body {
   box-shadow: none !important;
   color: var(--soft-ink) !important;
   outline: none;
-  margin: 0 auto 6px;
+  margin: 0;
   display: block;
 }
 
@@ -524,13 +524,6 @@ body {
   color: var(--soft-ink);
   opacity: 0.85;
   margin-bottom: 6px;
-}
-
-.save-label {
-  font-size: 10px;
-  text-transform: uppercase;
-  margin-right: 4px;
-  opacity: 0.7;
 }
 
 .combat-ability-label {
@@ -552,7 +545,6 @@ body {
   background: #ffffff;
   text-align: center;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
-
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -572,6 +564,366 @@ body {
   opacity: 0.7;
 }
 
+.combat-ability-save {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 6px;
+  width: 100%;
+}
+
+.st-toggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.st-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.st-dot {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+  margin-top: 5px;
+  cursor: pointer;
+}
+
+.st-toggle input:checked ~ .st-dot {
+  background-color: var(--border-strong);
+}
+
+.st-value {
+  font-size: 14px;
+  line-height: 1;
+  color: var(--soft-ink);
+  opacity: 0.9;
+}
+
+.st-toggle input:checked ~ .st-value {
+  font-weight: 600;
+}
+
+/* ========================= */
+/*      GRID PRINCIPAL       */
+/* ========================= */
+
+.skills-combat-feats-grid {
+  display: grid;
+  grid-template-columns: 260px 1fr 300px;
+  gap: 28px;
+  margin-top: 40px;
+}
+
+.skills-column,
+.combat-column,
+.feats-column {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.feats-column textarea {
+  min-height: 420px;
+}
+
+.features textarea {
+  border-radius: 24px;
+  min-height: 420px;
+}
+
+.skills.list-section.box {
+  padding: 14px 12px 18px;
+  border-radius: 22px;
+}
+
+/* ========================= */
+/*        SKILLS LIST        */
+/* ========================= */
+
+.skills-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.skill-row {
+  margin-bottom: 12px;
+}
+
+.skill-row:last-child {
+  margin-bottom: 0;
+}
+
+.charsheet .skill-row-label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-size: 12px;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.skill-row-label {
+  display: flex;
+  align-items: center;   /* tudo alinhado verticalmente */
+  gap: 8px;
+  width: 100%;
+}
+
+.skill-prof-toggle {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.skill-prof-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.skill-prof-visual {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  background: var(--paper);
+}
+
+.skill-prof-input:checked + .skill-prof-visual {
+  background: var(--border-strong);
+}
+
+.skill-name {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.skill-ability {
+  opacity: 0.7;
+  font-size: 9px;
+  text-transform: uppercase;
+}
+
+/* Modificador (+0) alinhado à direita */
+.skill-value {
+  min-width: 28px;
+  text-align: right;
+  font-family: "Cinzel", serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.skill-row-label:hover {
+  color: var(--ink-strong);
+  transform: translateX(2px);
+  transition: 0.15s ease;
+}
+
+.skill-prof-toggle:hover .skill-prof-visual {
+  border-color: var(--border-strong);
+}
+
+/* ========================= */
+/*      COMBAT COLUMN        */
+/* ========================= */
+
+.combat-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.combat-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.combat-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.combat-row-bottom {
+  display: grid;
+  grid-template-columns: 1fr auto auto 1fr;
+  gap: 12px;
+}
+
+.combat-stat-card {
+  flex: 1;
+  background: linear-gradient(180deg, var(--paper-top), var(--paper-bottom));
+  border: 1px solid var(--border-soft);
+  border-radius: 22px;
+  padding: 8px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+  min-width: 100px;
+}
+
+.combat-stat-card label {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--soft-ink);
+  margin-bottom: 4px;
+}
+
+.combat-stat-card input[type="text"],
+.combat-stat-card input[type="number"] {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  max-width: 60px;
+  text-align: center;
+  padding: 0;
+  font-family: "Cinzel", serif;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.inspiration-stat input[type="checkbox"] {
+  margin-top: 2px;
+  transform: scale(1.2);
+}
+
+.combat-stat-card.proficiency-stat input[type="text"],
+.combat-stat-card.proficiency-stat input[type="number"] {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* estilo base para todos os números de combate (AC, Speed, Init, PB) */
+.combat-stat-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  max-width: 60px;
+  text-align: center;
+  padding: 0;
+  font-family: "Cinzel", serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--soft-ink);
+}
+
+/* garante que o Proficiency Bonus NÃO volte a virar pílula */
+.combat-prof-input {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* Remove qualquer efeito de foco nos números de combate */
+.combat-stat-input:focus {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Reseta completamente o input do PB e deixa idêntico aos outros */
+.combat-stat-card.proficiency-stat .combat-stat-input {
+  all: unset;                      /* limpa TODOS os estilos herdados */
+  font-family: "Cinzel", serif;
+  font-size: 22px;
+  font-weight: 600;
+  text-align: center;
+  width: 100%;
+  max-width: 60px;
+}
+
+.combat-stat-card.proficiency-stat .combat-stat-input {
+  color: var(--soft-ink) !important;
+}
+
+.deathsaves {
+  margin-top: 8px;
+}
+
+.death-card {
+  border-radius: 22px;
+  border: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, var(--paper-top), var(--paper-bottom));
+  padding: 10px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.death-card-header {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--soft-ink);
+}
+
+.death-card-body {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.death-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.death-row-label {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--soft-ink);
+}
+
+.death-bubbles {
+  display: flex;
+  gap: 8px;
+}
+
+/* bolinhas personalizadas */
+.death-bubbles input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  appearance: none;
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+}
+
+.death-bubbles input[type="checkbox"]:checked {
+  background: var(--border-strong);
+}
 
 /* ========================= */
 
