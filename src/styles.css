@@ -188,6 +188,59 @@ body {
   overflow: hidden;
 }
 
+.resource-track-wrapper {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+/* segmento extra de HP/Chakra temporário */
+.resource-fill-temp {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: inherit;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+/* um pouquinho mais azulado para chakra, se quiser diferenciar */
+.resource-temp-chakra {
+  background: rgba(214, 237, 255, 0.9);
+}
+
+/* bolha do temp no final da barra */
+.resource-temp-badge {
+  position: absolute;
+  right: -2px;
+  top: 50%;
+  transform: translate(50%, -50%);
+  min-width: 40px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--soft-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+.resource-popover {
+  margin-top: 6px;
+  padding: 6px 8px;
+  border-radius: 16px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.96);
+  display: flex;
+  gap: 6px;
+}
+
 .resource-fill {
   height: 100%;
   border-radius: inherit;
@@ -207,6 +260,70 @@ body {
 
 .resource-chakra {
   background: linear-gradient(to right, #6ab7ff, #8de1ff);
+}
+
+.resource-track {
+  position: relative;
+  cursor: pointer;
+}
+
+/* Edit inputs abaixo da barra */
+.resource-edit-row {
+  margin-top: 6px;
+  display: flex;
+  gap: 6px;
+}
+
+.resource-edit-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.resource-edit-label {
+  font-size: 8px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--soft-ink);
+  opacity: 0.8;
+}
+
+.resource-edit-input {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* Bolha de HP/Chakra temporário */
+.resource-temp-chip {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.resource-temp-label {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--soft-ink);
+}
+
+.resource-temp-input {
+  width: 50px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  padding: 3px 6px;
+  font-size: 12px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .charsheet label {
@@ -240,6 +357,24 @@ body {
   display: flex;
   flex-direction: column;
   gap: 22px;
+}
+
+/* Character name label + input */
+.charname-field {
+  margin-top: 14px;
+}
+
+.charname-label {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.95);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--soft-ink);
+  margin-bottom: 6px;
 }
 
 .charname input {
@@ -620,6 +755,7 @@ body {
   grid-template-columns: 260px 1fr 300px;
   gap: 28px;
   margin-top: 40px;
+  align-items: stretch;
 }
 
 .skills-column,
@@ -642,7 +778,136 @@ body {
 .skills.list-section.box {
   padding: 14px 12px 18px;
   border-radius: 22px;
+  height: 100%;
 }
+
+.features-card {
+  height: 100%;
+  border-radius: 22px;
+  border: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, var(--paper-top), var(--paper-bottom));
+  padding: 10px 14px 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.features-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.features-title {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--soft-ink);
+}
+
+.features-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.features-add-button,
+.features-edit-button {
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 10px;
+  padding: 2px 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+}
+
+.features-add-button {
+  padding: 0 8px;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.features-list-container {
+  flex: 1;
+  overflow-y: auto;
+  padding-top: 4px;
+}
+
+.features-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.feature-item + .feature-item {
+  margin-top: 6px;
+}
+
+.feature-item {
+  border-radius: 14px;
+  border: 1px solid var(--chip-border);
+  background: rgba(255, 255, 255, 0.95);
+  padding: 6px 8px;
+}
+
+.feature-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.feature-main {
+  border: none;
+  background: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.feature-name {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.feature-source {
+  font-size: 11px;
+  color: var(--soft-ink);
+  opacity: 0.8;
+}
+
+.feature-description {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--soft-ink);
+}
+
+.feature-delete {
+  border: none;
+  background: transparent;
+  padding: 0 2px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  opacity: 0.6;
+}
+
+.feature-delete:hover {
+  opacity: 1;
+}
+
+.features-empty {
+  font-size: 12px;
+  color: var(--soft-ink);
+  opacity: 0.6;
+  margin: 4px 2px;
+}
+
 
 /* ========================= */
 /*        SKILLS LIST        */
@@ -701,7 +966,8 @@ body {
   height: 100%;
   border-radius: 50%;
   border: 2px solid var(--border-strong);
-  background: var(--paper);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7);
 }
 
 .skill-prof-input:checked + .skill-prof-visual {
@@ -805,10 +1071,6 @@ body {
   font-weight: 600;
 }
 
-.inspiration-stat input[type="checkbox"] {
-  margin-top: 2px;
-  transform: scale(1.2);
-}
 
 .combat-stat-card.proficiency-stat input[type="text"],
 .combat-stat-card.proficiency-stat input[type="number"] {
@@ -841,16 +1103,14 @@ body {
   border-radius: 0 !important;
 }
 
-/* Remove qualquer efeito de foco nos números de combate */
 .combat-stat-input:focus {
   border: none !important;
   box-shadow: none !important;
   outline: none !important;
 }
 
-/* Reseta completamente o input do PB e deixa idêntico aos outros */
 .combat-stat-card.proficiency-stat .combat-stat-input {
-  all: unset;                      /* limpa TODOS os estilos herdados */
+  all: unset;                      
   font-family: "Cinzel", serif;
   font-size: 22px;
   font-weight: 600;
@@ -909,14 +1169,13 @@ body {
   gap: 8px;
 }
 
-/* bolinhas personalizadas */
 .death-bubbles input[type="checkbox"] {
   width: 16px;
   height: 16px;
   border-radius: 50%;
   border: 2px solid var(--border-strong);
   appearance: none;
-  background: var(--paper);
+  background: transparent;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7);
   cursor: pointer;
 }
@@ -924,6 +1183,583 @@ body {
 .death-bubbles input[type="checkbox"]:checked {
   background: var(--border-strong);
 }
+
+.page-tabs {
+  margin: 24px 0 8px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.tab-button {
+  padding: 6px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--soft-ink);
+  cursor: pointer;
+}
+
+.tab-button.is-active {
+  border-color: var(--border-strong);
+  background: linear-gradient(180deg, var(--paper-top), var(--paper-bottom));
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+/* ========================= */
+/*         JUTSU PAGE        */
+/* ========================= */
+
+.jutsu-page {
+  margin-top: 24px;
+  padding: 18px 16px 22px;
+  border-radius: 24px;
+  border: 1px solid var(--border-strong);
+  background: linear-gradient(180deg, var(--paper-top), var(--paper-bottom));
+  box-shadow: var(--shadow-soft);
+}
+
+.jutsu-header {
+  margin-bottom: 16px;
+}
+
+.jutsu-title {
+  margin: 0 0 4px;
+  font-family: "Cinzel", serif;
+  font-size: 20px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.jutsu-subtitle {
+  margin: 0;
+  font-size: 12px;
+  color: var(--soft-ink);
+  opacity: 0.85;
+}
+
+.jutsu-columns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.jutsu-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.jutsu-column-title {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--soft-ink);
+  margin: 0 0 4px;
+}
+
+.jutsu-column-title-long {
+  font-size: 10px;          
+  white-space: nowrap;      
+  letter-spacing: 0.12em;   
+}
+
+.jutsu-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 6px;
+}
+
+.jutsu-table th {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--soft-ink);
+  text-align: left;
+  padding-bottom: 4px;
+}
+
+.jutsu-table td {
+  padding: 0 4px;
+}
+
+.jutsu-table input {
+  width: 100%;
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.9);
+  outline: none;
+}
+
+.jutsu-table input:focus {
+  border-color: var(--border-strong);
+  box-shadow: 0 0 0 1px rgba(155, 135, 112, 0.3);
+}
+
+/* --- Jutsu columns: header + add link + list --- */
+
+.jutsu-column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+
+.jutsu-add-link {
+  border: none;
+  background: none;
+  padding: 0 4px;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--soft-ink);
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.jutsu-add-link:hover {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+.jutsu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.jutsu-item {
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.jutsu-item + .jutsu-item {
+  margin-top: 8px;
+}
+
+.jutsu-item-main {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.jutsu-item-name {
+  font-weight: 600;
+}
+
+.jutsu-item-rank {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--soft-ink);
+}
+
+.jutsu-item-notes {
+  font-size: 12px;
+  color: var(--soft-ink);
+  opacity: 0.9;
+}
+
+.jutsu-empty {
+  font-size: 12px;
+  color: var(--soft-ink);
+  opacity: 0.6;
+  padding: 4px;
+}
+
+
+.jutsu-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.jutsu-modal {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 24px;
+  padding: 20px 20px 18px;
+  background: linear-gradient(180deg, var(--paper-top), var(--paper-bottom));
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.32);
+}
+
+.jutsu-modal-title {
+  margin: 0 0 12px;
+  font-family: "Cinzel", serif;
+  font-size: 18px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.jutsu-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.jutsu-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--soft-ink);
+}
+
+.jutsu-modal-field input,
+.jutsu-modal-field textarea {
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.95);
+  resize: vertical;
+}
+
+.jutsu-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.jutsu-modal-cancel,
+.jutsu-modal-save {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  border: 1px solid var(--border-soft);
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.jutsu-modal-save {
+  border-color: var(--border-strong);
+  background: var(--border-strong);
+  color: white;
+}
+
+.jutsu-item-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.jutsu-item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.jutsu-delete {
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.6;
+  padding: 0 2px;
+}
+
+.jutsu-delete:hover {
+  opacity: 1;
+}
+
+.jutsu-math-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.jutsu-math-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.jutsu-math-label {
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--soft-ink);
+}
+
+.jutsu-math-select {
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.95);
+  outline: none;
+}
+
+.jutsu-math-value {
+  padding: 6px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.95);
+  font-family: "Cinzel", serif;
+  font-size: 16px;
+  text-align: center;
+}
+
+.jutsu-rank-options {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.jutsu-rank-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.jutsu-rank-option input {
+  accent-color: var(--border-strong);
+  cursor: pointer;
+}
+
+.jutsu-type-options {
+  display: flex;
+  gap: 12px;
+}
+
+.jutsu-type-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.jutsu-type-option input {
+  accent-color: var(--border-strong);
+  cursor: pointer;
+}
+
+/* meta na listinha (rank · cost · casting) */
+.jutsu-item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--soft-ink);
+  opacity: 0.8;
+}
+
+/* detalhes do card */
+.jutsu-detail-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.jutsu-detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.jutsu-detail-label {
+  font-weight: 600;
+  color: var(--soft-ink);
+}
+
+.jutsu-detail-value {
+  text-align: right;
+}
+
+.jutsu-detail-block {
+  margin-top: 8px;
+}
+
+.jutsu-detail-subtitle {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--soft-ink);
+  margin-bottom: 4px;
+}
+
+.jutsu-detail-text {
+  font-size: 12px;
+  margin: 0;
+}
+
+.passive-senses-row {
+  grid-column: 2/4;
+  grid-row: 4;
+  margin-top: 4px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.passive-sense-card {
+  flex: 1;
+}
+
+.passive-sense-card label {
+  text-align: center;
+}
+
+.passive-sense-card input {
+  text-align: center;
+}
+
+.passive-perception-field,
+.passive-insight-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.passive-perception-field input,
+.passive-insight-field input {
+  text-align: center;
+}
+
+.identity-card .nature-affinity {
+  margin-top: -70px; 
+}
+
+.will-of-fire-orbs {
+  margin-top: 6px;
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.wof-orb {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  padding: 0;
+}
+
+.wof-orb-active {
+  background: var(--border-strong);
+  box-shadow: 0 0 0 1px var(--border-strong);
+}
+
+.will-of-fire-orbs {
+  margin-top: 6px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.wof-orb-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wof-orb-input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border-soft);
+  background: white;
+  cursor: pointer;
+  transition: 0.2s ease;
+  margin: 0;   
+  padding: 0;  
+  display: inline-block;;
+}
+.wof-orb-input:checked {
+  background: var(--border-strong);
+  border-color: var(--border-strong);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.15) inset;
+}
+
+
+.wof-orb-input:hover {
+  border-color: var(--border-strong);
+  transform: scale(1.1);
+}
+
+/* Hit / Chakra dice row */
+.resource-dice-row {
+  margin-top: -40px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 180px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.dice-chip {
+  flex: 1;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dice-label {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--soft-ink);
+}
+
+.dice-controls {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dice-count-input {
+  width: 40px;
+  padding: 4px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.95);
+  font-size: 12px;
+  text-align: center;
+}
+
+.dice-die-select {
+  flex: 1;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.95);
+  font-size: 12px;
+}
+
 
 /* ========================= */
 
@@ -943,5 +1779,11 @@ body {
     flex-wrap: wrap;
     justify-content: center;
     row-gap: 24px;
+  }
+}
+
+@media (max-width: 900px) {
+  .jutsu-columns {
+    grid-template-columns: 1fr;
   }
 }
