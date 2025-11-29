@@ -1,5 +1,6 @@
 import { useMemo, useState, useRef } from "react";
 import "./styles.css";
+import { JUTSU_LIBRARY } from "./data/jutsuLibrary";
 
 const abilityList = [
   { name: "Strength", key: "str", scoreId: "Strengthscore" },
@@ -96,7 +97,14 @@ export default function App() {
   const [taijutsuList, setTaijutsuList] = useState([]);
   const [isJutsuModalOpen, setIsJutsuModalOpen] = useState(false);
   const [currentJutsuType, setCurrentJutsuType] = useState(null);
-  const [jutsuForm, setJutsuForm] = useState({name: "", rank: "D", castingTime:"", cost:"", type:"attack", range:"", duration:"", components: "", keywords: "", description:"", higerLevels:"",});
+  const [jutsuForm, setJutsuForm] = useState({name: "", rank: "D", castingTime:"", cost:"", type:"attack", range:"", duration:"", components: "", keywords: "", description:"", higherLevels:"", damage: "", damageType: "", damage2: "", addAbilityMod: false, savingThrow: "", savingEffect: "",});
+  const [isJutsuLibraryOpen, setIsJutsuLibraryOpen] = useState(false);
+  const [jutsuLibraryType, setJutsuLibraryType] = useState(null);
+  const [jutsuLibraryFilter, setJutsuLibraryFilter] = useState("");
+  const [jutsuLibrarySelection, setJutsuLibrarySelection] = useState([]);
+  const [jutsuLibrarySubFilter, setJutsuLibrarySubFilter] = useState("");
+  const [userJutsuLibrary, setUserJutsuLibrary] = useState([]);
+  const [jutsuModalSource, setJutsuModalSource] = useState("direct");
   const [ninjutsuAbility, setNinjutsuAbility] = useState("int"); 
   const [genjutsuAbility, setGenjutsuAbility] = useState("wis");
   const [taijutsuAbility, setTaijutsuAbility] = useState("str");
@@ -216,6 +224,14 @@ export default function App() {
     }));
   };
 
+  const handleJutsuCheckboxChange = (field) => (event) => {
+    const { checked } = event.target;
+    setJutsuForm((prev) => ({
+      ...prev,
+      [field]: checked,
+    }));
+  };
+
    const openFeaturesModal = () => {
     setFeatureForm({
       name: "",
@@ -261,15 +277,103 @@ export default function App() {
     setExpandedFeatureId((current) => (current === id ? null : current));
   };
 
-  const openJutsuModal = (type) => {
-    setCurrentJutsuType(type); 
-    setJutsuForm({ name: "", rank: "D", castingTime:"", cost:"", type:"attack", range:"", duration:"", components: "", keywords: "", description:"", higerLevels:"",});
+  const openJutsuModal = (type, source = "direct") => {
+    setCurrentJutsuType(type);
+    setJutsuForm({
+      name: "",
+      rank: "D",
+      castingTime: "",
+      cost: "",
+      type: "attack",
+      range: "",
+      duration: "",
+      components: "",
+      keywords: "",
+      description: "",
+      higherLevels: "",
+      damage: "",
+      damageType: "",
+      damage2: "",
+      damage2Type: "",
+      addAbilityMod: false,
+      savingThrow: "",
+      savingEffect: "",
+    });
+    setJutsuModalSource(source);
     setIsJutsuModalOpen(true);
   };
 
   const closeJutsuModal = () => {
     setIsJutsuModalOpen(false);
   };
+
+  const handleCreateJutsuFromLibraryClick = () => {
+    if (!jutsuLibraryType) return;
+    // fecha o modal de library e abre o modal de criação
+    setIsJutsuLibraryOpen(false);
+    openJutsuModal(jutsuLibraryType, "library");
+  };
+
+  const openJutsuLibrary = (type) => {
+    setJutsuLibraryType(type); 
+    setJutsuLibraryFilter("");
+    setJutsuLibrarySelection([]);
+    setIsJutsuLibraryOpen(true);
+  };
+
+  const closeJutsuLibrary = () => {
+    setIsJutsuLibraryOpen(false);
+  };
+
+  const combinedJutsuLibrary = useMemo(
+    () => [...JUTSU_LIBRARY, ...userJutsuLibrary],
+    [userJutsuLibrary]
+  );
+
+  const jutsuSubCategories = useMemo(() => {
+    if (!jutsuLibraryType) return [];
+
+    const set = new Set();
+
+    combinedJutsuLibrary.forEach((jutsu) => {
+      if (jutsu.category === jutsuLibraryType && jutsu.subCategory) {set.add(jutsu.subCategory);}
+    });
+
+    return Array.from(set).sort();
+  }, [combinedJutsuLibrary, jutsuLibraryType]);
+
+
+  const visibleJutsuLibrary = useMemo(() => {
+    const filter = jutsuLibraryFilter.toLowerCase().trim();
+
+    return combinedJutsuLibrary.filter((jutsu) => {
+      if (jutsuLibraryType && jutsu.category !== jutsuLibraryType) return false;
+      if (jutsuLibrarySubFilter && jutsu.subCategory !== jutsuLibrarySubFilter) {
+        return false;
+      }
+
+      if (!filter) return true;
+
+      const haystack = [
+        jutsu.name,
+        jutsu.keywords,
+        jutsu.rank,
+        jutsu.range,
+        jutsu.description,
+        jutsu.subCategory,
+      ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+      return haystack.includes(filter);
+    });
+  }, [
+    jutsuLibraryFilter,
+    jutsuLibraryType,
+    jutsuLibrarySubFilter,
+    combinedJutsuLibrary,
+  ]);
 
    const handleDeleteJutsu = (type, id) => {
     if (type === "ninjutsu") {
@@ -280,6 +384,56 @@ export default function App() {
       setTaijutsuList((prev) => prev.filter((j) => j.id !== id));
     }
   };
+
+  const toggleJutsuLibrarySelection = (id) => {
+    setJutsuLibrarySelection((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const handleJutsuLibrarySubmit = () => {
+    if (!jutsuLibraryType || jutsuLibrarySelection.length === 0) {
+      setIsJutsuLibraryOpen(false);
+      return;
+    }
+
+    const templates = combinedJutsuLibrary.filter(
+      (j) => j.category === jutsuLibraryType && jutsuLibrarySelection.includes(j.id)
+    );
+
+    const newJutsus = templates.map((tpl) => ({
+      id: Date.now() + Math.random(),
+      name: tpl.name,
+      rank: tpl.rank,
+      castingTime: tpl.castingTime,
+      cost: tpl.cost,
+      type: tpl.type,
+      range: tpl.range,
+      duration: tpl.duration,
+      components: tpl.components,
+      keywords: tpl.keywords,
+      description: tpl.description,
+      higherLevels: tpl.higherLevels || "",
+      damage: tpl.damage || "",
+      damageType: tpl.damageType || "",
+      damage2: tpl.damage2 || "",
+      damage2Type: tpl.damage2Type || "",
+      addAbilityMod: !!tpl.addAbilityMod,
+      savingThrow: tpl.savingThrow || "",
+      savingEffect: tpl.savingEffect || "",
+    }));
+
+    if (jutsuLibraryType === "ninjutsu") {
+      setNinjutsuList((prev) => [...prev, ...newJutsus]);
+    } else if (jutsuLibraryType === "genjutsu") {
+      setGenjutsuList((prev) => [...prev, ...newJutsus]);
+    } else if (jutsuLibraryType === "taijutsu") {
+      setTaijutsuList((prev) => [...prev, ...newJutsus]);
+    }
+
+    setIsJutsuLibraryOpen(false);
+  };
+
 
   const handleJutsuSubmit = () => {
     if (!currentJutsuType || !jutsuForm.name.trim()) {
@@ -300,7 +454,41 @@ export default function App() {
       keywords: jutsuForm.keywords.trim(),
       description: jutsuForm.description.trim(),
       higherLevels: (jutsuForm.higherLevels || "").trim(),
+      damage: jutsuForm.damage.trim(),
+      damageType: jutsuForm.damageType.trim(),
+      damage2: jutsuForm.damage2.trim(),
+      damage2Type: jutsuForm.damage2Type.trim(),
+      addAbilityMod: !!jutsuForm.addAbilityMod,
+      savingThrow: jutsuForm.savingThrow.trim(),
+      savingEffect: jutsuForm.savingEffect.trim(),
     };
+
+    if (jutsuModalSource === "library" && currentJutsuType) {
+      const templateForUser = {
+        id: `user:${currentJutsuType}:${Date.now()}`,
+        category: currentJutsuType,
+        name: newJutsu.name,
+        rank: newJutsu.rank,
+        castingTime: newJutsu.castingTime,
+        cost: newJutsu.cost,
+        type: newJutsu.type,
+        range: newJutsu.range,
+        duration: newJutsu.duration,
+        components: newJutsu.components,
+        keywords: newJutsu.keywords,
+        description: newJutsu.description,
+        higherLevels: newJutsu.higherLevels,
+        damage: newJutsu.damage,
+        damageType: newJutsu.damageType,
+        damage2: newJutsu.damage2,
+        damage2Type: newJutsu.damage2Type,
+        addAbilityMod: newJutsu.addAbilityMod,
+        savingThrow: newJutsu.savingThrow,
+        savingEffect: newJutsu.savingEffect,
+      };
+
+      setUserJutsuLibrary((prev) => [...prev, templateForUser]);
+    }
 
     if (currentJutsuType === "ninjutsu") {
       setNinjutsuList((prev) => [...prev, newJutsu]);
@@ -310,9 +498,29 @@ export default function App() {
       setTaijutsuList((prev) => [...prev, newJutsu]);
     }
 
+    setJutsuModalSource("direct")
     setIsJutsuModalOpen(false);
   };
 
+    const addJutsuFromLibrary = (libraryId) => {
+    const template = JUTSU_LIBRARY.find((j) => j.id === libraryId);
+    if (!template) return;
+
+    // We don't want to reuse the library id as the instance id
+    const { category, ...rest } = template;
+    const newJutsu = {
+      ...rest,
+      id: Date.now(), // unique per character sheet instance
+    };
+
+    if (category === "ninjutsu") {
+      setNinjutsuList((prev) => [...prev, newJutsu]);
+    } else if (category === "genjutsu") {
+      setGenjutsuList((prev) => [...prev, newJutsu]);
+    } else if (category === "taijutsu") {
+      setTaijutsuList((prev) => [...prev, newJutsu]);
+    }
+  };
 
   const getSavingThrowValue = (key) => {
     const modifier = abilityModifiers[key] ?? 0;
@@ -378,6 +586,8 @@ export default function App() {
   const chakraTempFill = getGaugeFill(chakraPoints.temp, chakraPoints.max);
   const hpPercent = hpFill * 100;
   const chakraPercent = chakraFill * 100;
+  const hasHpTemp = Number(hitPoints.temp) > 0;
+  const hasChakraTemp = Number(chakraPoints.temp) > 0;
   const hpTempWidthPercent = Math.min(1 - hpFill, hpTempFill) * 100;
   const chakraTempWidthPercent = Math.min(1 - chakraFill, chakraTempFill) * 100;
   const hpTooltip = `${hitPoints.current || 0} / ${hitPoints.max || 0}${ hitPoints.temp ? ` (+${hitPoints.temp} temp)` : ""}`;
@@ -438,19 +648,16 @@ export default function App() {
               >
                 <div className="resource-track" title={hpTooltip}>
                   <div
-                    className={`resource-fill ${getVitalityColorClass(hpPercent)}`}
-                    style={{ width: `${hpPercent}%` }}
-                  />
-                  {Number(hitPoints.temp) > 0 && (
+                    className={`resource-fill ${getVitalityColorClass(hpPercent)} ${hasHpTemp ? "resource-fill-with-temp" : ""}`}
+                    style={{ width: `${hpPercent}%` }}/>
+                  {hasHpTemp && (
                     <div
                       className="resource-fill-temp"
-                      style={{
-                        left: `${hpPercent}%`,
-                        width: `${hpTempWidthPercent}%`,
-                      }}
-                    />
+                      style={{left: `${hpPercent}%`, width: `${hpTempWidthPercent}%`}} />
                   )}
-
+                  <button className="resource-temp-badge">
+                    {Number(hitPoints.temp) > 0 ? `+${hitPoints.temp}` : "+T"}
+                  </button>
                   <button
                     type="button"
                     className="resource-temp-badge"
@@ -504,40 +711,20 @@ export default function App() {
               <div
                 className="resource-track-wrapper"
                 onMouseEnter={() => setIsChakraEditing(true)}
-                onMouseLeave={() => setIsChakraEditing(false)}
-              >
+                onMouseLeave={() => setIsChakraEditing(false)}>
                 <div className="resource-track" title={chakraTooltip}>
                   <div
-                    className="resource-fill resource-chakra"
-                    style={{ width: `${chakraPercent}%` }}
-                  />
-                  {Number(chakraPoints.temp) > 0 && (
+                    className={`resource-fill resource-chakra ${hasChakraTemp ? "resource-fill-with-temp" : ""}`}
+                    style={{ width: `${chakraPercent}%` }}/>
+                  {hasChakraTemp && (
                     <div
                       className="resource-fill-temp resource-temp-chakra"
-                      style={{
-                        left: `${chakraPercent}%`,
-                        width: `${chakraTempWidthPercent}%`,
-                      }}
-                    />
+                      style={{left: `${chakraPercent}%`,width: `${chakraTempWidthPercent}%`,}}/>
                   )}
-
-                  <button
-                    type="button"
-                    className="resource-temp-badge"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setIsChakraEditing(true);
-                    }}
-                    title={
-                      chakraPoints.temp
-                        ? `Temp Chakra: ${chakraPoints.temp}`
-                        : "Set temp Chakra"
-                    }
-                  >
+                  <button className="resource-temp-badge" /* ... */>
                     {Number(chakraPoints.temp) > 0 ? `+${chakraPoints.temp}` : "+T"}
                   </button>
                 </div>
-
                 {isChakraEditing && (
                   <div className="resource-popover">
                     <div className="resource-edit-field">
@@ -703,41 +890,26 @@ export default function App() {
           <div className="field nature-affinity">
             <span className="field-label nature-label">Nature Affinity</span>
             <div className="nature-list">
-              <button
-                type="button"
-                className={`nature-list-item ${natureAffinity.includes("Fire") ? "is-active" : ""}`}
-                onClick={() => toggleNature("Fire")}>
-                <span className="nature-list-icon nature-icon-fire" />
+              <div className={`nature-list-item ${natureAffinity.includes("Fire") ? "is-active" : ""}`}>
+                <span className="nature-list-icon nature-icon-fire" onClick={() => toggleNature("Fire")}/>
                 <span className="nature-list-label">Fire</span>
-              </button>
-              <button
-                type="button"
-                className={`nature-list-item ${natureAffinity.includes("Wind") ? "is-active" : ""}`}
-                onClick={() => toggleNature("Wind")}>
-                <span className="nature-list-icon nature-icon-wind" />
+              </div>
+              <div className={`nature-list-item ${natureAffinity.includes("Wind") ? "is-active" : ""}`}>
+                <span className="nature-list-icon nature-icon-wind" onClick={() => toggleNature("Wind")}/>
                 <span className="nature-list-label">Wind</span>
-              </button>
-              <button
-                type="button"
-                className={`nature-list-item ${natureAffinity.includes("Lightning") ? "is-active" : ""}`}
-                onClick={() => toggleNature("Lightning")}>
-                <span className="nature-list-icon nature-icon-lightning" />
+              </div>
+              <div className={`nature-list-item ${natureAffinity.includes("Lightning") ? "is-active" : ""}`}>
+                <span className="nature-list-icon nature-icon-lightning" onClick={() => toggleNature("Lightning")}/>
                 <span className="nature-list-label">Lightning</span>
-              </button>
-              <button
-                type="button"
-                className={`nature-list-item ${natureAffinity.includes("Earth") ? "is-active" : ""}`}
-                onClick={() => toggleNature("Earth")}>
-                <span className="nature-list-icon nature-icon-earth" />
+              </div>
+              <div className={`nature-list-item ${natureAffinity.includes("Earth") ? "is-active" : ""}`}>
+                <span className="nature-list-icon nature-icon-earth" onClick={() => toggleNature("Earth")}/>
                 <span className="nature-list-label">Earth</span>
-              </button>
-              <button
-                type="button"
-                className={`nature-list-item ${natureAffinity.includes("Water") ? "is-active" : ""}`}
-                onClick={() => toggleNature("Water")}>
-                <span className="nature-list-icon nature-icon-water" />
+              </div>
+              <div className={`nature-list-item ${natureAffinity.includes("Water") ? "is-active" : ""}`}>
+                <span className="nature-list-icon nature-icon-water" onClick={() => toggleNature("Water")}/>
                 <span className="nature-list-label">Water</span>
-              </button>
+              </div>
             </div>
           </div>
         </section>
@@ -1048,7 +1220,7 @@ export default function App() {
                     <button
                       type="button"
                       className="jutsu-add-link"
-                      onClick={() => openJutsuModal("ninjutsu")}>+</button>
+                      onClick={() => openJutsuLibrary("ninjutsu")}>+</button>
                   </div>
                   <div className="jutsu-math-row">
                     <div className="jutsu-math-field">
@@ -1167,7 +1339,7 @@ export default function App() {
                     <button
                       type="button"
                       className="jutsu-add-link jutsu-add-long"
-                      onClick={() => openJutsuModal("taijutsu")}>
+                      onClick={() => openJutsuLibrary("taijutsu")}>
                       +
                     </button>
                   </div>
@@ -1284,6 +1456,99 @@ export default function App() {
           </div>
         </div>
       )}
+      {isJutsuLibraryOpen && (
+        <div className="jutsu-modal-backdrop" onClick={closeJutsuLibrary}>
+          <div className="jutsu-modal" onClick={(event) => event.stopPropagation()}>
+            <h3 className="jutsu-modal-title">
+              {jutsuLibraryType === "ninjutsu"
+                ? "Add Ninjutsu from Library"
+                : jutsuLibraryType === "genjutsu"
+                ? "Add Genjutsu from Library"
+                : "Add Taijutsu / Bukijutsu from Library"}
+            </h3>
+
+            <div className="jutsu-modal-form">
+              <div className="jutsu-modal-field jutsu-library-header-row">
+                <div className="jutsu-library-search">
+                  <span>Search</span>
+                  <input
+                    type="text"
+                    placeholder="Name, keywords, rank..."
+                    value={jutsuLibraryFilter}
+                    onChange={(e) => setJutsuLibraryFilter(e.target.value)}/>
+                </div>
+                {jutsuSubCategories.length > 0 && (
+                  <div className="jutsu-library-subcategory">
+                    <span>Group</span>
+                    <select
+                      value={jutsuLibrarySubFilter}
+                      onChange={(e) => setJutsuLibrarySubFilter(e.target.value)}>
+                      <option value="">All</option>
+                      {jutsuSubCategories.map((sub) => (
+                        <option key={sub} value={sub}>{sub}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                <button
+                  type="button"
+                  className="jutsu-modal-save"
+                  onClick={handleCreateJutsuFromLibraryClick}>
+                  Create / Add New Jutsu
+                </button>
+              </div>
+              <div className="jutsu-library-list">
+                {visibleJutsuLibrary.map((jutsu) => {
+                  const isSelected = jutsuLibrarySelection.includes(jutsu.id);
+
+                  return (
+                    <button
+                      key={jutsu.id}
+                      type="button"
+                      className={`jutsu-library-item${isSelected ? " jutsu-library-item-selected" : ""}`}
+                      onClick={() => toggleJutsuLibrarySelection(jutsu.id)}>
+                      <div className="jutsu-library-item-body">
+                        <div className="jutsu-library-item-header">
+                          <span className="jutsu-library-name">{jutsu.name}</span>
+                          <span className="jutsu-library-meta">
+                            {jutsu.rank && <>Rank {jutsu.rank} · </>}
+                            {jutsu.cost && <>{jutsu.cost} Chakra · </>}
+                            {jutsu.range && <>{jutsu.range}</>}
+                          </span>
+                        </div>
+                        {jutsu.keywords && (
+                          <div className="jutsu-library-keywords">{jutsu.keywords}</div>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+                {visibleJutsuLibrary.length === 0 && (
+                  <p className="jutsu-library-empty">No jutsu found.</p>
+                )}
+              </div>
+            </div>
+
+            <div className="jutsu-modal-actions">
+              <button
+                type="button"
+                className="jutsu-modal-cancel"
+                onClick={closeJutsuLibrary}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="jutsu-modal-save"
+                disabled={jutsuLibrarySelection.length === 0}
+                onClick={handleJutsuLibrarySubmit}
+              >
+                Add Selected
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {isJutsuModalOpen && (
         <div className="jutsu-modal-backdrop" onClick={closeJutsuModal}>
           <div
@@ -1355,6 +1620,72 @@ export default function App() {
                   </label>
                 </div>
               </div>
+              {jutsuForm.type === "attack" && (
+                <div className="jutsu-attack-section">
+                  <div className="jutsu-attack-grid">
+                    <label className="jutsu-modal-field jutsu-inline-field">
+                      <span>Damage</span>
+                      <input
+                        type="text"
+                        value={jutsuForm.damage}
+                        onChange={handleJutsuFormChange("damage")}
+                        placeholder="4d6, 2d8+3..."/>
+                    </label>
+                    <label className="jutsu-modal-field jutsu-inline-field">
+                      <span>Damage Type</span>
+                      <input
+                        type="text"
+                        value={jutsuForm.damageType}
+                        onChange={handleJutsuFormChange("damageType")}
+                        placeholder="Fire, Slashing, Lightning..."/>
+                    </label>
+                  </div>
+                  <div className="jutsu-attack-grid">
+                    <label className="jutsu-modal-field jutsu-inline-field">
+                      <span>Damage 2 (optional)</span>
+                      <input
+                        type="text"
+                        value={jutsuForm.damage2}
+                        onChange={handleJutsuFormChange("damage2")}
+                        placeholder="1d8, 2d6..."/>
+                    </label>
+                    <label className="jutsu-modal-field jutsu-inline-field">
+                      <span>Damage 2 Type</span>
+                      <input
+                        type="text"
+                        value={jutsuForm.damage2Type}
+                        onChange={handleJutsuFormChange("damage2Type")}
+                        placeholder="Fire, Psychic..."/>
+                    </label>
+                  </div>
+                  <label className="jutsu-checkbox-row">
+                    <input
+                    type="checkbox"
+                    checked={jutsuForm.addAbilityMod}
+                    onChange={handleJutsuCheckboxChange("addAbilityMod")}/>
+                    <span>Add ability mod to damage</span>
+                  </label>
+                  <div className="jutsu-attack-grid">
+                    <label className="jutsu-modal-field jutsu-inline-field">
+                      <span>Saving Throw</span>
+                      <input
+                        type="text"
+                        value={jutsuForm.savingThrow}
+                        onChange={handleJutsuFormChange("savingThrow")}
+                        placeholder="Dex, Wis, Str..."/>
+                    </label>
+                    <label className="jutsu-modal-field jutsu-inline-field">
+                      <span>Save Effect</span>
+                      <input
+                        type="text"
+                        value={jutsuForm.savingEffect}
+                        onChange={handleJutsuFormChange("savingEffect")}
+                        placeholder="Half damage on success..."/>
+                    </label>
+                  </div>
+                </div>
+              )}
+
               <label className="jutsu-modal-field">
                 <span>Range</span>
                 <input

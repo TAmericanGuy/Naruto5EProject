@@ -185,7 +185,8 @@ body {
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.7);
   box-shadow: inset 0 0 0 1px var(--border-soft);
-  overflow: hidden;
+  overflow: visible;
+  position: relative;
 }
 
 .resource-track-wrapper {
@@ -198,13 +199,13 @@ body {
   position: absolute;
   top: 0;
   bottom: 0;
-  border-radius: inherit;
-  background: rgba(255, 255, 255, 0.7);
+  border-radius: 0 999px 999px 0;
+  background: #bebebe;
 }
 
 /* um pouquinho mais azulado para chakra, se quiser diferenciar */
 .resource-temp-chakra {
-  background: rgba(214, 237, 255, 0.9);
+  background: linear-gradient(to right, #7bc9ff, #a5e1ff);
 }
 
 /* bolha do temp no final da barra */
@@ -229,6 +230,8 @@ body {
   justify-content: center;
   cursor: pointer;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
+  z-index: 2;
 }
 
 .resource-popover {
@@ -244,6 +247,10 @@ body {
 .resource-fill {
   height: 100%;
   border-radius: inherit;
+}
+
+.resource-fill-with-temp {
+  border-radius: 999px 0 0 999px;
 }
 
 .vitality-high {
@@ -290,12 +297,21 @@ body {
 }
 
 .resource-edit-input {
-  font-size: 12px;
-  padding: 4px 8px;
+  font-size: 14px;
+  padding: 6px 14px;
   border-radius: 999px;
   border: 1px solid var(--border-soft);
   background: rgba(255, 255, 255, 0.95);
+  box-sizing: border-box;
 }
+
+/* Remove spinners (Chrome, Safari, Edge) */
+.resource-edit-input::-webkit-outer-spin-button,
+.resource-edit-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 
 /* Bolha de HP/Chakra temporário */
 .resource-temp-chip {
@@ -500,7 +516,7 @@ body {
   background: transparent;
   border: none;
   padding: 4px 0;
-  cursor: pointer;
+  cursor: cursor;
 }
 
 .nature-list-label {
@@ -518,6 +534,7 @@ body {
   background-repeat: no-repeat;
   filter: grayscale(1);
   transition: filter 0.15s ease, transform 0.15s ease;
+  cursor: pointer;
 }
 
 .nature-list-item.is-active .nature-list-icon {
@@ -1389,12 +1406,15 @@ body {
 
 .jutsu-modal {
   width: 100%;
-  max-width: 420px;
+  max-width: 520px;
   border-radius: 24px;
   padding: 20px 20px 18px;
   background: linear-gradient(180deg, var(--paper-top), var(--paper-bottom));
   border: 1px solid var(--border-strong);
   box-shadow: 0 16px 30px rgba(0, 0, 0, 0.32);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .jutsu-modal-title {
@@ -1409,6 +1429,10 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 6px;
 }
 
 .jutsu-modal-field {
@@ -1451,6 +1475,7 @@ body {
   border-color: var(--border-strong);
   background: var(--border-strong);
   color: white;
+  white-space: nowrap;
 }
 
 .jutsu-item-main {
@@ -1543,6 +1568,48 @@ body {
   gap: 12px;
 }
 
+/* --- Attack-specific fields inside jutsu modal --- */
+
+.jutsu-attack-section {
+  margin-top: 4px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  border: 1px dashed var(--border-soft);
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.jutsu-attack-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.jutsu-inline-field span {
+  font-size: 10px;
+}
+
+.jutsu-inline-field input {
+  padding: 5px 10px;
+}
+
+.jutsu-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--soft-ink);
+}
+
+.jutsu-checkbox-row input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--border-strong);
+}
+
+
 .jutsu-type-option {
   display: inline-flex;
   align-items: center;
@@ -1603,6 +1670,8 @@ body {
 .jutsu-detail-text {
   font-size: 12px;
   margin: 0;
+  white-space: pre-line;
+  line-height: 1.45;
 }
 
 .passive-senses-row {
@@ -1759,6 +1828,157 @@ body {
   background: rgba(255, 255, 255, 0.95);
   font-size: 12px;
 }
+
+/* =============== JUTSU LIBRARY (MODAL DE SELEÇÃO) =============== */
+
+.jutsu-library-list {
+  margin-top: 8px;
+  /* área scrollável */
+  max-height: 340px;
+  overflow-y: auto;
+
+  /* grid de cartinhas, igual seu desenho */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 10px;
+  padding-right: 6px; /* respiro pro scroll */
+}
+
+/* cada jutsu é uma “cartinha” */
+.jutsu-library-item {
+  position: relative;
+  border-radius: 12px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.96);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  min-height: 85px;
+  width: 100%;
+  text-align: left;
+  outline: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, border-color 0.08s ease, background-color 0.08s ease;
+}
+
+.jutsu-library-item:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
+}
+
+.jutsu-library-item-selected {
+  border-color: var(--border-strong);
+  background: #fffdf4;
+  box-shadow: 0 0 0 1px var(--border-strong),
+    0 2px 6px rgba(0, 0, 0, 0.16);
+}
+
+/* “checkzinho” visual no canto quando estiver selecionado (opcional mas fica lindo) */
+.jutsu-library-item-selected::after {
+  content: "✓";
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--border-strong);
+}
+
+/* conteúdo da cartinha */
+.jutsu-library-item-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.jutsu-library-item-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.jutsu-library-name {
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.4px;
+}
+
+.jutsu-library-meta {
+  font-size: 11px;
+  color: var(--soft-ink);
+  opacity: 0.8;
+}
+
+/* palavras-chave abaixo do título */
+.jutsu-library-keywords {
+  font-size: 10px;
+  font-style: italic;
+  color: var(--soft-ink);
+  opacity: 0.7;
+}
+
+/* estado selecionado (checkbox marcado) */
+.jutsu-library-item-selected {
+  border-color: var(--border-strong);
+  box-shadow: 0 0 0 1px var(--border-strong);
+  background: #fffdf9;
+}
+
+.jutsu-library-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+/* mensagem “no jutsu found” centralizada */
+.jutsu-library-empty {
+  font-size: 12px;
+  color: var(--soft-ink);
+  opacity: 0.7;
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 8px 0;
+}
+
+.jutsu-library-header-row {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  align-items: flex-end;
+  width: 100%;
+}
+
+.jutsu-library-search {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.jutsu-library-subcategory {
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.jutsu-library-subcategory select {
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 11px;
+}
+
+.jutsu-library-search,
+.jutsu-library-subcategory {
+  flex: 1;                 /* 🔥 Faz eles ficarem lado a lado */
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
 
 
 /* ========================= */
